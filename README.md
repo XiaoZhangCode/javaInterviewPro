@@ -1,4 +1,4 @@
-# 🚀 Spring Boot 万用模板 🚀
+# 🚀 Spring Boot 面试刷题网站 🚀
 
 **作者**: [XiaoZhangCode](https://github.com/XiaoZhangCode) 🌟
 
