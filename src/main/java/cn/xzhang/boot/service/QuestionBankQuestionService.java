@@ -9,6 +9,8 @@ import cn.xzhang.boot.model.vo.questionbankquestion.QuestionBankQuestionSimpleVo
 import cn.xzhang.boot.model.vo.questionbankquestion.QuestionBankQuestionVo;
 import com.baomidou.mybatisplus.extension.service.IService;
 
+import java.util.List;
+
 /**
  * @author <a href="https://github.com/XiaoZhangCode">XiaoZhangCode</a>
  * @description 针对表【questionBankQuestion(题库题目关联表)】的数据库操作Service
@@ -62,4 +64,19 @@ public interface QuestionBankQuestionService extends IService<QuestionBankQuesti
      * @return 返回一个包含题库题目关联信息的QuestionBankQuestionVo对象。
      */
     QuestionBankQuestionVo getQuestionBankQuestionVO(QuestionBankQuestion questionBankQuestion);
+
+    /**
+     * 根据题库id获取关联的题目id
+     *
+     * @param questionBanId 题库id
+     * @return 关联的题目id
+     */
+    List<QuestionBankQuestionVo> getListByQuestionBankId(Long questionBanId);
+
+    /**
+     * 修改题目所属题库
+     * @param id 题目id
+     * @param questionBankId 题库id
+     */
+    void updateQuestionBank(Long id, Long questionBankId);
 }

@@ -1,6 +1,7 @@
 package cn.xzhang.boot.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.xzhang.boot.common.exception.ServiceException;
 import cn.xzhang.boot.common.pojo.PageResult;
 import cn.xzhang.boot.mapper.QuestionBankQuestionMapper;
@@ -11,11 +12,13 @@ import cn.xzhang.boot.model.entity.QuestionBankQuestion;
 import cn.xzhang.boot.model.vo.questionbankquestion.QuestionBankQuestionSimpleVo;
 import cn.xzhang.boot.model.vo.questionbankquestion.QuestionBankQuestionVo;
 import cn.xzhang.boot.service.QuestionBankQuestionService;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,6 +35,9 @@ public class QuestionBankQuestionServiceImpl extends ServiceImpl<QuestionBankQue
 
     @Resource
     private QuestionBankQuestionMapper questionbankquestionMapper;
+
+    @Resource
+    private QuestionBankQuestionMapper questionBankQuestionMapper;
 
     /**
      * 添加新题库题目关联
@@ -132,6 +138,46 @@ public class QuestionBankQuestionServiceImpl extends ServiceImpl<QuestionBankQue
         QuestionBankQuestionVo questionbankquestionVo = new QuestionBankQuestionVo();
         BeanUtil.copyProperties(questionBankQuestion, questionbankquestionVo);
         return questionbankquestionVo;
+    }
+
+    @Override
+    public List<QuestionBankQuestionVo> getListByQuestionBankId(Long questionBanId) {
+        if (questionBanId != null) {
+            List<QuestionBankQuestion> questions = questionbankquestionMapper.selectList(
+                    new LambdaQueryWrapper<QuestionBankQuestion>()
+                            .eq(QuestionBankQuestion::getQuestionBankId, questionBanId)
+            );
+            if (CollUtil.isEmpty(questions)) {
+                return Collections.emptyList();
+            }
+            return questions.stream().map(item -> {
+                QuestionBankQuestionVo questionBankVo = new QuestionBankQuestionVo();
+                BeanUtil.copyProperties(item, questionBankVo);
+                return questionBankVo;
+            }).collect(Collectors.toList());
+        }
+        return Collections.emptyList();
+    }
+
+    @Override
+    public void updateQuestionBank(Long id, Long questionBankId) {
+        QuestionBankQuestion bankQuestion = questionBankQuestionMapper.selectOne(
+                new LambdaQueryWrapper<QuestionBankQuestion>()
+                        .eq(QuestionBankQuestion::getQuestionBankId, id)
+                        .eq(QuestionBankQuestion::getQuestionBankId, questionBankId)
+        );
+        if (bankQuestion == null) {
+            QuestionBankQuestion bankQuestion1 = new QuestionBankQuestion();
+            bankQuestion1.setQuestionBankId(questionBankId);
+            bankQuestion1.setQuestionId(id);
+            questionBankQuestionMapper.insert(bankQuestion1);
+            return;
+        }
+        if (bankQuestion.getQuestionBankId().equals(questionBankId)) {
+            return;
+        }
+        bankQuestion.setQuestionBankId(questionBankId);
+        questionBankQuestionMapper.updateById(bankQuestion);
     }
 
 }

@@ -9,6 +9,8 @@ import cn.xzhang.boot.model.vo.question.QuestionSimpleVo;
 import cn.xzhang.boot.model.vo.question.QuestionVo;
 import com.baomidou.mybatisplus.extension.service.IService;
 
+import java.util.List;
+
 /**
  * @author <a href="https://github.com/XiaoZhangCode">XiaoZhangCode</a>
  * @description 针对表【question(题目表)】的数据库操作Service
@@ -62,4 +64,11 @@ public interface QuestionService extends IService<Question> {
      * @return 返回一个包含题目信息的QuestionVo对象。
      */
     QuestionVo getQuestionVO(Question question);
+
+    /**
+     * 根据题目id列表查询题目列表
+     * @param questionIds 题目id列表
+     * @return 题目信息
+     */
+    List<Question> selectListInIds(List<Long> questionIds);
 }

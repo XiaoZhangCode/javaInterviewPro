@@ -5,6 +5,7 @@ import lombok.Data;
 
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.util.List;
 
 
 /**
@@ -24,9 +25,9 @@ public class QuestionBaseDTO implements Serializable {
     @Schema(description = "内容",requiredMode = Schema.RequiredMode.REQUIRED)
     private String content;
 
-    @NotNull(message = "标签列表（json 数组）不能为空")
-    @Schema(description = "标签列表（json 数组）",requiredMode = Schema.RequiredMode.REQUIRED)
-    private String tags;
+    @NotNull(message = "标签列表不能为空")
+    @Schema(description = "标签列表",requiredMode = Schema.RequiredMode.REQUIRED)
+    private List<String> tags;
 
     @NotNull(message = "推荐答案不能为空")
     @Schema(description = "推荐答案",requiredMode = Schema.RequiredMode.REQUIRED)
@@ -36,8 +37,8 @@ public class QuestionBaseDTO implements Serializable {
     @Schema(description = "题目来源",requiredMode = Schema.RequiredMode.REQUIRED)
     private String source;
 
-    @Schema(description = "仅会员可见（1 表示仅会员可见）")
-    private Byte needVip;
+    @Schema(description = "仅会员可见")
+    private Boolean needVip;
 
     @Schema(description = "浏览量")
     private Integer viewNum;

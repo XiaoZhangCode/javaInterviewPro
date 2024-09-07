@@ -9,7 +9,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-
 import java.io.Serializable;
 
 /**
@@ -17,7 +16,7 @@ import java.io.Serializable;
 * @TableName Question
 * @author <a href="https://github.com/XiaoZhangCode">XiaoZhangCode</a>
 */
-@TableName(value ="question")
+@TableName(value ="question",autoResultMap = true)
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class Question extends BaseDO implements Serializable {
@@ -43,7 +42,7 @@ public class Question extends BaseDO implements Serializable {
     private String source;
 
     @Schema(description = "仅会员可见（1 表示仅会员可见）")
-    private Byte needVip;
+    private Boolean needVip;
 
     @Schema(description = "浏览量")
     private Integer viewNum;

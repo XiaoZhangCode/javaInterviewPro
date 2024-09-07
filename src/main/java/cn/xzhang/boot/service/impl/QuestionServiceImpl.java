@@ -1,6 +1,7 @@
 package cn.xzhang.boot.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.json.JSONUtil;
 import cn.xzhang.boot.common.exception.ServiceException;
 import cn.xzhang.boot.common.pojo.PageResult;
 import cn.xzhang.boot.mapper.QuestionMapper;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -42,7 +44,8 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
     @Override
     public long addQuestion(QuestionAddReqDTO questionReqDTO) {
         Question question = new Question();
-        BeanUtil.copyProperties(questionReqDTO, question);
+        BeanUtil.copyProperties(questionReqDTO, question, "tags");
+        question.setTags(JSONUtil.toJsonStr(questionReqDTO.getTags()));
         if (!this.save(question)) {
             throw exception(ADD_FAIL);
         }
@@ -61,7 +64,8 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
             throw exception(BAD_REQUEST);
         }
         Question question = new Question();
-        BeanUtil.copyProperties(questionReqDTO, question);
+        BeanUtil.copyProperties(questionReqDTO, question, "tags");
+        question.setTags(JSONUtil.toJsonStr(questionReqDTO.getTags()));
         boolean b = this.updateById(question);
         if (!b) {
             throw exception(UPDATE_FAIL);
@@ -100,7 +104,8 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
             return null;
         }
         QuestionSimpleVo questionSimpleVo = new QuestionSimpleVo();
-        BeanUtil.copyProperties(question, questionSimpleVo);
+        BeanUtil.copyProperties(question, questionSimpleVo, "tags");
+        questionSimpleVo.setTags(JSONUtil.toList(question.getTags(), String.class));
         return questionSimpleVo;
     }
 
@@ -118,7 +123,8 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         }
         List<QuestionVo> questionVos = pageResult.getList().stream().map(question -> {
             QuestionVo questionVo = new QuestionVo();
-            BeanUtil.copyProperties(question, questionVo);
+            BeanUtil.copyProperties(question, questionVo, "tags");
+            questionVo.setTags(JSONUtil.toList(question.getTags(), String.class));
             return questionVo;
         }).collect(Collectors.toList());
         return new PageResult<>(questionVos, pageResult.getTotal());
@@ -130,8 +136,14 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
             return null;
         }
         QuestionVo questionVo = new QuestionVo();
-        BeanUtil.copyProperties(question, questionVo);
+        BeanUtil.copyProperties(question, questionVo, "tags");
+        questionVo.setTags(JSONUtil.toList(question.getTags(), String.class));
         return questionVo;
+    }
+
+    @Override
+    public List<Question> selectListInIds(List<Long> questionIds) {
+        return this.listByIds(questionIds);
     }
 
 }

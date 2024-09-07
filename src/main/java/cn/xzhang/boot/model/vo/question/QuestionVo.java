@@ -5,6 +5,7 @@ import lombok.Data;
 
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * 题目VO
@@ -25,7 +26,7 @@ public class QuestionVo implements Serializable {
     private String content;
 
     @Schema(description = "标签列表（json 数组）",requiredMode = Schema.RequiredMode.REQUIRED)
-    private String tags;
+    private List<String> tags;
 
     @Schema(description = "推荐答案",requiredMode = Schema.RequiredMode.REQUIRED)
     private String answer;
@@ -34,7 +35,7 @@ public class QuestionVo implements Serializable {
     private String source;
 
     @Schema(description = "仅会员可见（1 表示仅会员可见）")
-    private Byte needVip;
+    private Boolean needVip;
 
     @Schema(description = "浏览量")
     private Integer viewNum;

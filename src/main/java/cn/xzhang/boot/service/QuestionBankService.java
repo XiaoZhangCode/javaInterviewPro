@@ -50,10 +50,10 @@ public interface QuestionBankService extends IService<QuestionBank> {
     /**
      * 获取题库表页面信息
      *
-     * @param questionbankPageReqDTO 包含分页和筛选条件的题库表请求数据传输对象
+     * @param questionBankPageReqDTO 包含分页和筛选条件的题库表请求数据传输对象
      * @return 返回题库表页面的结果，包括题库表列表和分页信息
      */
-    PageResult<QuestionBankVo> getQuestionBankPage(QuestionBankPageReqDTO questionbankPageReqDTO);
+    PageResult<QuestionBankVo> getQuestionBankPage(QuestionBankPageReqDTO questionBankPageReqDTO);
 
     /**
      * 根据QuestionBank对象获取对应的QuestionBankVo对象。
