@@ -5,7 +5,6 @@ import cn.hutool.core.io.FileUtil;
 import cn.xzhang.boot.common.pojo.CommonResult;
 import cn.xzhang.boot.constant.FileConstant;
 import cn.xzhang.boot.manager.CosManager;
-import cn.xzhang.boot.model.dto.file.UploadFileRequest;
 import cn.xzhang.boot.model.entity.User;
 import cn.xzhang.boot.model.enums.FileUploadBizEnum;
 import cn.xzhang.boot.service.UserService;
@@ -35,7 +34,7 @@ import static cn.xzhang.boot.common.exception.util.ServiceExceptionUtil.exceptio
 @RestController
 @RequestMapping("/file")
 @Slf4j
-@Tag(name = "通用 - 文件上传接口")
+@Tag(name = "文件上传-File")
 public class FileController {
 
     @Resource
@@ -88,7 +87,6 @@ public class FileController {
             }
         }
     }
-
 
 
     private void validFile(MultipartFile multipartFile, FileUploadBizEnum fileUploadBizEnum) {

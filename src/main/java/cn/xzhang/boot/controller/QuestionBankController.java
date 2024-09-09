@@ -35,7 +35,7 @@ import static cn.xzhang.boot.common.exception.enums.GlobalErrorCodeConstants.BAD
  *
  * @author <a href="https://github.com/XiaoZhangCode">XiaoZhangCode</a>
  */
-@Tag(name = "管理后台 - 题库表管理")
+@Tag(name = "题库表管理-QuestionBank")
 @RestController
 @RequestMapping("/questionBank")
 public class QuestionBankController {

@@ -21,6 +21,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.annotation.security.PermitAll;
 import javax.validation.Valid;
 
 import java.util.ArrayList;
@@ -35,7 +36,7 @@ import static cn.xzhang.boot.common.pojo.CommonResult.success;
  *
  * @author <a href="https://github.com/XiaoZhangCode">XiaoZhangCode</a>
  */
-@Tag(name = "管理后台 - 题目管理")
+@Tag(name = "题目管理-Question")
 @RestController
 @RequestMapping("/question")
 public class QuestionController {
