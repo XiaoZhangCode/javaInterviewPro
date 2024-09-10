@@ -2,6 +2,8 @@ package cn.xzhang.boot.service.impl;
 
 import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.crypto.SecureUtil;
 import cn.xzhang.boot.common.exception.ServiceException;
 import cn.xzhang.boot.common.pojo.PageResult;
 import cn.xzhang.boot.mapper.UserMapper;
@@ -159,10 +161,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      * @return 添加成功返回用户id
      */
     @Override
-    public long addUser(UserAddReqDTO userReqDTO) {
+    public synchronized long addUser(UserAddReqDTO userReqDTO) {
+        if (StrUtil.isBlank(userReqDTO.getUserPassword())) {
+            userReqDTO.setUserPassword(DigestUtils.md5DigestAsHex((SALT + "123456789").getBytes()));
+        }
         // 校验输入参数
         if (StringUtils.isAnyBlank(userReqDTO.getUserAccount(), userReqDTO.getUserPassword(), userReqDTO.getUserName())) {
             throw exception(BAD_REQUEST);
+        }
+        // 校验账号是否重复
+        if (this.baseMapper.selectCount(new LambdaQueryWrapper<User>().eq(User::getUserAccount, userReqDTO.getUserAccount())) > 0) {
+            throw exception(USER_NAME_REPEAT);
         }
         User user = new User();
         BeanUtil.copyProperties(userReqDTO, user);
@@ -287,6 +296,16 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         UserVo userVo = new UserVo();
         BeanUtil.copyProperties(user, userVo);
         return userVo;
+    }
+
+    @Override
+    public boolean resetUserPassword(Long userId) {
+        User user = userMapper.selectOne(User::getId, userId);
+        if (user == null) {
+            throw exception(USER_NOT_EXIST);
+        }
+        user.setUserPassword(DigestUtils.md5DigestAsHex((SALT + "123456789").getBytes()));
+        return this.updateById(user);
     }
 }
 

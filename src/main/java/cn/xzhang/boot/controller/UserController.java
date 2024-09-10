@@ -3,6 +3,7 @@ package cn.xzhang.boot.controller;
 import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dev33.satoken.annotation.SaCheckRole;
 import cn.dev33.satoken.stp.StpUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.xzhang.boot.common.pojo.CommonResult;
 import cn.xzhang.boot.common.pojo.PageResult;
 import cn.xzhang.boot.constant.UserConstant;
@@ -17,6 +18,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -180,6 +182,21 @@ public class UserController {
     public CommonResult<PageResult<UserVo>> getUserPage(UserPageReqDTO userPageReqDTO) {
         // 调用服务层方法，获取用户分页信息，并返回结果
         return CommonResult.success(userService.getUserPage(userPageReqDTO));
+    }
+
+    // 重置用户登录密码
+    @PostMapping("/reset/password")
+    @Operation(summary = "重置用户登录密码")
+    @SaCheckRole(UserConstant.ADMIN_ROLE)
+    public CommonResult<Boolean> resetUserPassword(Long userId) {
+        // 检查传入的用户请求数据是否为空
+        if (userId == null) {
+            return CommonResult.error(BAD_REQUEST_PARAMS);
+        }
+        // 调用服务层方法，重置用户密码，并获取重置结果
+        boolean result = userService.resetUserPassword(userId);
+        // 返回重置用户密码成功响应结果
+        return CommonResult.success(result);
     }
 
 

@@ -23,16 +23,4 @@ public class UserPageReqDTO extends PageParam implements Serializable {
     @Schema(description = "用户昵称")
     private String userName;
 
-    @Schema(description = "用户角色")
-    private String userRole;
-
-    @Schema(description = "创建时间")
-    private String createTime;
-
-    @Schema(description = "开放平台id")
-    private String unionId;
-
-    @Schema(description = "公众号openId")
-    private String mpOpenId;
-
 }

@@ -10,8 +10,8 @@ import java.util.Objects;
 
 /**
  * @author XiaoZhangCode
- * @description 针对表【user(用户表)】的数据库操作Mapper
  * @author <a href="https://github.com/XiaoZhangCode">XiaoZhangCode</a>
+ * @description 针对表【user(用户表)】的数据库操作Mapper
  */
 public interface UserMapper extends BaseMapperPlus<User> {
 
@@ -19,9 +19,7 @@ public interface UserMapper extends BaseMapperPlus<User> {
         return selectPage(userPageReqDTO, new LambdaQueryWrapper<User>()
                 .eq(Objects.nonNull(userPageReqDTO.getId()), User::getId, userPageReqDTO.getId())
                 .eq(Objects.nonNull(userPageReqDTO.getUserName()), User::getUserName, userPageReqDTO.getUserName())
-                .eq(Objects.nonNull(userPageReqDTO.getUserRole()), User::getUserRole, userPageReqDTO.getUserRole())
-                .eq(Objects.nonNull(userPageReqDTO.getMpOpenId()), User::getMpOpenId, userPageReqDTO.getMpOpenId())
-                .eq(Objects.nonNull(userPageReqDTO.getUnionId()), User::getUnionId, userPageReqDTO.getUnionId()));
+        );
     }
 
 }

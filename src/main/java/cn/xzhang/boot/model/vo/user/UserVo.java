@@ -43,4 +43,10 @@ public class UserVo implements Serializable {
 
     @Schema(description = "用户状态（0正常 1停用）")
     private Integer userStatus;
+
+    @Schema(description = "创建时间")
+    private String createTime;
+
+    @Schema(description = "更新时间")
+    private String updateTime;
 }

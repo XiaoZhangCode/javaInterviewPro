@@ -106,4 +106,12 @@ public interface UserService extends IService<User> {
      * @return 返回一个包含用户信息的UserVo对象。
      */
     UserVo getUserVO(User user);
+
+    /**
+     * 重置用户密码
+     *
+     * @param userId 用户ID
+     * @return 返回操作是否成功
+     */
+    boolean resetUserPassword(Long userId);
 }
