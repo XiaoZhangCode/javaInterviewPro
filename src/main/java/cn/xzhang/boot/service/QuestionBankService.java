@@ -1,9 +1,7 @@
 package cn.xzhang.boot.service;
 
 import cn.xzhang.boot.common.pojo.PageResult;
-import cn.xzhang.boot.model.dto.questionBank.QuestionBankAddReqDTO;
-import cn.xzhang.boot.model.dto.questionBank.QuestionBankPageReqDTO;
-import cn.xzhang.boot.model.dto.questionBank.QuestionBankUpdateReqDTO;
+import cn.xzhang.boot.model.dto.questionBank.*;
 import cn.xzhang.boot.model.entity.QuestionBank;
 import cn.xzhang.boot.model.vo.questionBank.QuestionBankSimpleVo;
 import cn.xzhang.boot.model.vo.questionBank.QuestionBankVo;
@@ -62,4 +60,18 @@ public interface QuestionBankService extends IService<QuestionBank> {
      * @return 返回一个包含题库表信息的QuestionBankVo对象。
      */
     QuestionBankVo getQuestionBankVO(QuestionBank questionBank);
+
+    /**
+     * 审核题库表信息
+     * @param questionBankReviewReqDTO 审核请求数据传输对象
+     * @return 审核结果
+     */
+    Boolean reviewQuestionBank(QuestionBankReviewReqDTO questionBankReviewReqDTO);
+
+    /**
+     * 批量审核题库表信息
+     * @param questionBankBatchReviewReqDTO 审核请求数据传输对象
+     * @return 审核结果
+     */
+    Boolean reviewQuestionBankBatch(QuestionBankBatchReviewReqDTO questionBankBatchReviewReqDTO);
 }

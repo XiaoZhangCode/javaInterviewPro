@@ -17,7 +17,7 @@ import java.io.Serializable;
 * @TableName QuestionBankQuestion
 * @author <a href="https://github.com/XiaoZhangCode">XiaoZhangCode</a>
 */
-@TableName(value ="questionbankquestion")
+@TableName(value ="question_bank_question")
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class QuestionBankQuestion extends BaseDO implements Serializable {

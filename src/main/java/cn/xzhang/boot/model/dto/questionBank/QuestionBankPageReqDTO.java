@@ -30,11 +30,6 @@ public class QuestionBankPageReqDTO extends PageParam implements Serializable {
     private String title;
 
 
-    @NotNull(message = "描述不能为空")
-    @Schema(description = "描述",requiredMode = Schema.RequiredMode.REQUIRED)
-    private String description;
-
-
     @Schema(description = "状态：0-待审核, 1-通过, 2-拒绝")
     private Integer reviewStatus;
 

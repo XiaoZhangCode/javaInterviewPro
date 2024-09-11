@@ -7,6 +7,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -38,5 +39,23 @@ public class QuestionBankVo implements Serializable {
 
     @Schema(description = "题目信息")
     private List<QuestionVo> questionList;
+
+    @Schema(description = "审核状态")
+    private Integer reviewStatus;
+
+    @Schema(description = "创建时间")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date createTime;
+
+    @Schema(description = "更新时间")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date updateTime;
+
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Schema(description = "审核时间",requiredMode = Schema.RequiredMode.REQUIRED)
+    private Date reviewTime;
+
+    @Schema(description = "审核信息",requiredMode = Schema.RequiredMode.REQUIRED)
+    private String reviewMessage;
 
 }

@@ -1,21 +1,24 @@
 package cn.xzhang.boot.service.impl;
 
+import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.xzhang.boot.common.exception.ServiceException;
 import cn.xzhang.boot.common.pojo.PageResult;
 import cn.xzhang.boot.mapper.QuestionBankMapper;
-import cn.xzhang.boot.model.dto.questionBank.QuestionBankAddReqDTO;
-import cn.xzhang.boot.model.dto.questionBank.QuestionBankPageReqDTO;
-import cn.xzhang.boot.model.dto.questionBank.QuestionBankUpdateReqDTO;
+import cn.xzhang.boot.model.dto.questionBank.*;
 import cn.xzhang.boot.model.entity.QuestionBank;
 import cn.xzhang.boot.model.vo.questionBank.QuestionBankSimpleVo;
 import cn.xzhang.boot.model.vo.questionBank.QuestionBankVo;
 import cn.xzhang.boot.service.QuestionBankService;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -132,6 +135,45 @@ public class QuestionBankServiceImpl extends ServiceImpl<QuestionBankMapper, Que
         QuestionBankVo questionbankVo = new QuestionBankVo();
         BeanUtil.copyProperties(questionBank, questionbankVo);
         return questionbankVo;
+    }
+
+    @Override
+    public Boolean reviewQuestionBank(QuestionBankReviewReqDTO questionBankReviewReqDTO) {
+        long reviewUserId = StpUtil.getLoginIdAsLong();
+        Long id = questionBankReviewReqDTO.getId();
+        String reviewMessage = questionBankReviewReqDTO.getReviewMessage();
+        Integer reviewStatus = questionBankReviewReqDTO.getReviewStatus();
+        QuestionBank questionBank = questionbankMapper.selectById(id);
+        if (ObjectUtil.isEmpty(questionBank)) {
+            throw exception(QUESTION_BANK_NOT_EXISTS);
+        }
+        int updated = questionbankMapper.update(null,
+                Wrappers.lambdaUpdate(QuestionBank.class)
+                        .set(QuestionBank::getReviewMessage, reviewMessage)
+                        .set(QuestionBank::getReviewStatus, reviewStatus)
+                        .set(QuestionBank::getReviewerId, reviewUserId)
+                        .set(QuestionBank::getReviewTime, DateUtil.now())
+                        .eq(QuestionBank::getId, id)
+        );
+        return updated > 0;
+    }
+
+    @Override
+    @Transactional(rollbackFor = ServiceException.class)
+    public Boolean reviewQuestionBankBatch(QuestionBankBatchReviewReqDTO questionBankBatchReviewReqDTO) {
+        long reviewUserId = StpUtil.getLoginIdAsLong();
+        Integer reviewStatus = questionBankBatchReviewReqDTO.getReviewStatus();
+        String reviewMessage = questionBankBatchReviewReqDTO.getReviewMessage();
+        List<Long> idList = questionBankBatchReviewReqDTO.getIdList();
+        int updated = questionbankMapper.update(null,
+                Wrappers.lambdaUpdate(QuestionBank.class)
+                        .set(QuestionBank::getReviewMessage, reviewMessage)
+                        .set(QuestionBank::getReviewStatus, reviewStatus)
+                        .set(QuestionBank::getReviewerId, reviewUserId)
+                        .set(QuestionBank::getReviewTime, DateUtil.now())
+                        .in(QuestionBank::getId, idList)
+        );
+        return updated > 0;
     }
 
 }

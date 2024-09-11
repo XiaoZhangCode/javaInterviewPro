@@ -5,9 +5,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.xzhang.boot.common.pojo.CommonResult;
 import cn.xzhang.boot.common.pojo.PageResult;
 import cn.xzhang.boot.constant.UserConstant;
-import cn.xzhang.boot.model.dto.questionBank.QuestionBankAddReqDTO;
-import cn.xzhang.boot.model.dto.questionBank.QuestionBankPageReqDTO;
-import cn.xzhang.boot.model.dto.questionBank.QuestionBankUpdateReqDTO;
+import cn.xzhang.boot.model.dto.questionBank.*;
 import cn.xzhang.boot.model.entity.Question;
 import cn.xzhang.boot.model.entity.QuestionBank;
 import cn.xzhang.boot.model.vo.questionBank.QuestionBankSimpleVo;
@@ -143,5 +141,23 @@ public class QuestionBankController {
         // 调用服务层方法，获取分页信息，并返回结果
         return CommonResult.success(questionbankService.getQuestionBankPage(questionbankPageReqDTO));
     }
+
+    @PostMapping("/review")
+    @Operation(summary = "审核题库")
+    @SaCheckRole(UserConstant.ADMIN_ROLE)
+    public CommonResult<Boolean> reviewQuestionBank(@RequestBody QuestionBankReviewReqDTO questionBankReviewReqDTO) {
+        // 调用服务层方法，审核题库，并返回结果
+        return CommonResult.success(questionbankService.reviewQuestionBank(questionBankReviewReqDTO));
+    }
+
+
+    @PostMapping("/review/batch")
+    @Operation(summary = "批量审核题库")
+    @SaCheckRole(UserConstant.ADMIN_ROLE)
+    public CommonResult<Boolean> reviewQuestionBankBatch(@RequestBody QuestionBankBatchReviewReqDTO questionBankBatchReviewReqDTO) {
+        // 调用服务层方法，批量审核题库，并返回结果
+        return CommonResult.success(questionbankService.reviewQuestionBankBatch(questionBankBatchReviewReqDTO));
+    }
+
 
 }

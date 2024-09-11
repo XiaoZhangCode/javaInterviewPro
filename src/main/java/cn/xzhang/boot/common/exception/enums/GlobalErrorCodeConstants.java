@@ -4,6 +4,7 @@ import cn.xzhang.boot.common.exception.ErrorCode;
 
 /**
  * 全局错误码枚举
+ *
  * @author <a href="https://github.com/XiaoZhangCode">XiaoZhangCode</a>
  */
 public interface GlobalErrorCodeConstants {
@@ -29,8 +30,6 @@ public interface GlobalErrorCodeConstants {
     ErrorCode INTERNAL_SERVER_ERROR = new ErrorCode(500, "系统异常");
 
 
-
-
     // ========== 自定义错误段 ==========
     ErrorCode UNKNOWN = new ErrorCode(999, "未知错误");
     ErrorCode PASSWORD_NOT_MATCH = new ErrorCode(4001, "两次输入的密码不一致");
@@ -47,6 +46,7 @@ public interface GlobalErrorCodeConstants {
     ErrorCode ADD_FAIL = new ErrorCode(4222, "添加失败");
     ErrorCode UPDATE_FAIL = new ErrorCode(4223, "更新失败");
     ErrorCode DELETE_FAIL = new ErrorCode(4224, "删除失败");
+    ErrorCode QUESTION_BANK_NOT_EXISTS = new ErrorCode(4225, "题库不存在");
 
     //
 

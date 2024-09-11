@@ -17,10 +17,10 @@ public interface QuestionBankMapper extends BaseMapperPlus<QuestionBank> {
 
     default PageResult<QuestionBank> selectPage(QuestionBankPageReqDTO questionbankPageReqDTO) {
         return selectPage(questionbankPageReqDTO, new LambdaQueryWrapper<QuestionBank>()
-                .eq(Objects.nonNull(questionbankPageReqDTO.getTitle()), QuestionBank::getTitle, questionbankPageReqDTO.getTitle())
-                .eq(Objects.nonNull(questionbankPageReqDTO.getDescription()), QuestionBank::getDescription, questionbankPageReqDTO.getDescription())
+                .eq(Objects.nonNull(questionbankPageReqDTO.getId()), QuestionBank::getId, questionbankPageReqDTO.getId())
+                .like(Objects.nonNull(questionbankPageReqDTO.getTitle()), QuestionBank::getTitle, questionbankPageReqDTO.getTitle())
+                .eq(Objects.nonNull(questionbankPageReqDTO.getReviewStatus()), QuestionBank::getDescription, questionbankPageReqDTO.getReviewStatus())
                 .orderByDesc(QuestionBank::getCreateTime)
-
         );
     }
 

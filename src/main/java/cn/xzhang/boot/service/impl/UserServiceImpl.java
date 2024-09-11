@@ -190,7 +190,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public boolean updateUser(UserUpdateReqDTO userReqDTO) {
         // 校验输入参数
-        if (StringUtils.isAnyBlank(userReqDTO.getUserAccount(), userReqDTO.getUserPassword(), userReqDTO.getUserName())) {
+        if (StringUtils.isAnyBlank(userReqDTO.getUserAccount(), userReqDTO.getUserName())) {
             throw exception(BAD_REQUEST);
         }
         if (userReqDTO.getId() == null) {
