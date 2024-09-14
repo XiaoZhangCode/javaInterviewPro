@@ -2,9 +2,11 @@ package cn.xzhang.boot.model.vo.question;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import org.springframework.format.annotation.DateTimeFormat;
 
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -45,5 +47,28 @@ public class QuestionVo implements Serializable {
 
     @Schema(description = "收藏数")
     private Integer favourNum;
+
+    @Schema(description = "审核状态")
+    private Integer reviewStatus;
+
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Schema(description = "审核时间",requiredMode = Schema.RequiredMode.REQUIRED)
+    private Date reviewTime;
+
+    @Schema(description = "审核信息",requiredMode = Schema.RequiredMode.REQUIRED)
+    private String reviewMessage;
+
+    @Schema(description = "审核人")
+    private String reviewer;
+
+    @Schema(description = "审核人id")
+    private Long reviewerId;
+
+    @Schema(description = "创建人id")
+    private String creator;
+
+    @Schema(description = "创建人名称")
+    private String creatorName;
+
 
 }

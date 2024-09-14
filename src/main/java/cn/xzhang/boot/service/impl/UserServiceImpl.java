@@ -25,6 +25,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.DigestUtils;
 
 import javax.annotation.Resource;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -306,6 +308,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
         user.setUserPassword(DigestUtils.md5DigestAsHex((SALT + "123456789").getBytes()));
         return this.updateById(user);
+    }
+
+    @Override
+    public List<UserVo> getUserList(Collection<Long> userIds) {
+        List<User> userList = userMapper.selectList(User::getId, userIds);
+        return userList.stream().map(this::getUserVO).collect(Collectors.toList());
     }
 }
 

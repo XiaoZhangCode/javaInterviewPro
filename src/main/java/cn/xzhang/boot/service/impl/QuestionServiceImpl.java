@@ -1,23 +1,24 @@
 package cn.xzhang.boot.service.impl;
 
+import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.json.JSONUtil;
 import cn.xzhang.boot.common.exception.ServiceException;
 import cn.xzhang.boot.common.pojo.PageResult;
 import cn.xzhang.boot.mapper.QuestionMapper;
-import cn.xzhang.boot.model.dto.question.QuestionAddReqDTO;
-import cn.xzhang.boot.model.dto.question.QuestionPageReqDTO;
-import cn.xzhang.boot.model.dto.question.QuestionUpdateReqDTO;
+import cn.xzhang.boot.model.dto.question.*;
 import cn.xzhang.boot.model.entity.Question;
 import cn.xzhang.boot.model.vo.question.QuestionSimpleVo;
 import cn.xzhang.boot.model.vo.question.QuestionVo;
 import cn.xzhang.boot.service.QuestionService;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -144,6 +145,46 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
     @Override
     public List<Question> selectListInIds(List<Long> questionIds) {
         return this.listByIds(questionIds);
+    }
+
+    @Override
+    @Transactional(rollbackFor = ServiceException.class)
+    public Boolean reviewQuestion(QuestionReviewReqDTO reviewReqDTO) {
+        long reviewUserId = StpUtil.getLoginIdAsLong();
+        Long id = reviewReqDTO.getId();
+        String reviewMessage = reviewReqDTO.getReviewMessage();
+        Integer reviewStatus = reviewReqDTO.getReviewStatus();
+        Question question = questionMapper.selectById(id);
+        if (ObjectUtil.isEmpty(question)) {
+            throw exception(QUESTION_BANK_NOT_EXISTS);
+        }
+        int updated = questionMapper.update(null,
+                Wrappers.lambdaUpdate(Question.class)
+                        .set(Question::getReviewMessage, reviewMessage)
+                        .set(Question::getReviewStatus, reviewStatus)
+                        .set(Question::getReviewerId, reviewUserId)
+                        .set(Question::getReviewTime, DateUtil.now())
+                        .eq(Question::getId, id)
+        );
+        return updated > 0;
+    }
+
+    @Override
+    @Transactional(rollbackFor = ServiceException.class)
+    public Boolean reviewQuestionBatch(QuestionBatchReviewReqDTO reviewReqDTO) {
+        long reviewUserId = StpUtil.getLoginIdAsLong();
+        Integer reviewStatus = reviewReqDTO.getReviewStatus();
+        String reviewMessage = reviewReqDTO.getReviewMessage();
+        List<Long> idList = reviewReqDTO.getIdList();
+        int updated = questionMapper.update(null,
+                Wrappers.lambdaUpdate(Question.class)
+                        .set(Question::getReviewMessage, reviewMessage)
+                        .set(Question::getReviewStatus, reviewStatus)
+                        .set(Question::getReviewerId, reviewUserId)
+                        .set(Question::getReviewTime, DateUtil.now())
+                        .in(Question::getId, idList)
+        );
+        return updated > 0;
     }
 
 }

@@ -21,8 +21,7 @@ public class QuestionBaseDTO implements Serializable {
     @Schema(description = "标题",requiredMode = Schema.RequiredMode.REQUIRED)
     private String title;
 
-    @NotNull(message = "内容不能为空")
-    @Schema(description = "内容",requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "内容")
     private String content;
 
     @NotNull(message = "标签列表不能为空")

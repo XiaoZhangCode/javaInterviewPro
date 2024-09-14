@@ -11,6 +11,9 @@ import cn.xzhang.boot.model.vo.user.UserSimpleVo;
 import cn.xzhang.boot.model.vo.user.UserVo;
 import com.baomidou.mybatisplus.extension.service.IService;
 
+import java.util.Collection;
+import java.util.List;
+
 /**
  * @author <a href="https://github.com/XiaoZhangCode">XiaoZhangCode</a>
  * @description 针对表【user(用户表)】的数据库操作Service
@@ -114,4 +117,11 @@ public interface UserService extends IService<User> {
      * @return 返回操作是否成功
      */
     boolean resetUserPassword(Long userId);
+
+    /**
+     * 获取用户列表
+     * @param userIds 用户id集合
+     * @return 用户列表
+     */
+    List<UserVo> getUserList(Collection<Long> userIds);
 }

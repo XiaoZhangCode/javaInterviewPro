@@ -8,8 +8,10 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.io.Serializable;
+import java.util.Date;
 
 /**
 * 题目
@@ -52,6 +54,19 @@ public class Question extends BaseDO implements Serializable {
 
     @Schema(description = "收藏数")
     private Integer favourNum;
+
+    @Schema(description = "审核状态")
+    private Integer reviewStatus;
+
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Schema(description = "审核时间",requiredMode = Schema.RequiredMode.REQUIRED)
+    private Date reviewTime;
+
+    @Schema(description = "审核信息",requiredMode = Schema.RequiredMode.REQUIRED)
+    private String reviewMessage;
+
+    @Schema(description = "审核人id")
+    private Long reviewerId;
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;

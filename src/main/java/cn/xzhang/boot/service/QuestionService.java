@@ -1,9 +1,7 @@
 package cn.xzhang.boot.service;
 
 import cn.xzhang.boot.common.pojo.PageResult;
-import cn.xzhang.boot.model.dto.question.QuestionAddReqDTO;
-import cn.xzhang.boot.model.dto.question.QuestionPageReqDTO;
-import cn.xzhang.boot.model.dto.question.QuestionUpdateReqDTO;
+import cn.xzhang.boot.model.dto.question.*;
 import cn.xzhang.boot.model.entity.Question;
 import cn.xzhang.boot.model.vo.question.QuestionSimpleVo;
 import cn.xzhang.boot.model.vo.question.QuestionVo;
@@ -71,4 +69,18 @@ public interface QuestionService extends IService<Question> {
      * @return 题目信息
      */
     List<Question> selectListInIds(List<Long> questionIds);
+
+    /**
+     * 审核题目
+     * @param reviewReqDTO 题目审核请求
+     * @return boolean
+     */
+    Boolean reviewQuestion(QuestionReviewReqDTO reviewReqDTO);
+
+    /**
+     * 批量审核题目
+     * @param reviewReqDTO 题目审核请求
+     * @return boolean
+     */
+    Boolean reviewQuestionBatch(QuestionBatchReviewReqDTO reviewReqDTO);
 }

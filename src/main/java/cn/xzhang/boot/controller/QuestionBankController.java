@@ -2,6 +2,7 @@ package cn.xzhang.boot.controller;
 
 import cn.dev33.satoken.annotation.SaCheckRole;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.xzhang.boot.common.pojo.CommonResult;
 import cn.xzhang.boot.common.pojo.PageResult;
 import cn.xzhang.boot.constant.UserConstant;
@@ -11,9 +12,11 @@ import cn.xzhang.boot.model.entity.QuestionBank;
 import cn.xzhang.boot.model.vo.questionBank.QuestionBankSimpleVo;
 import cn.xzhang.boot.model.vo.questionBank.QuestionBankVo;
 import cn.xzhang.boot.model.vo.questionbankquestion.QuestionBankQuestionVo;
+import cn.xzhang.boot.model.vo.user.UserVo;
 import cn.xzhang.boot.service.QuestionBankQuestionService;
 import cn.xzhang.boot.service.QuestionBankService;
 import cn.xzhang.boot.service.QuestionService;
+import cn.xzhang.boot.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -24,6 +27,9 @@ import javax.validation.Valid;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static cn.xzhang.boot.common.exception.enums.GlobalErrorCodeConstants.BAD_REQUEST_PARAMS;
@@ -46,6 +52,9 @@ public class QuestionBankController {
 
     @Resource
     private QuestionService questionService;
+
+    @Resource
+    private UserService userService;
 
     /**
      * 创建QuestionBank
@@ -139,7 +148,28 @@ public class QuestionBankController {
     @SaCheckRole(UserConstant.ADMIN_ROLE)
     public CommonResult<PageResult<QuestionBankVo>> getQuestionBankPage(QuestionBankPageReqDTO questionbankPageReqDTO) {
         // 调用服务层方法，获取分页信息，并返回结果
-        return CommonResult.success(questionbankService.getQuestionBankPage(questionbankPageReqDTO));
+        PageResult<QuestionBankVo> questionBankPage = questionbankService.getQuestionBankPage(questionbankPageReqDTO);
+        if (ObjectUtil.isEmpty(questionBankPage) || CollUtil.isEmpty(questionBankPage.getList())) {
+            return CommonResult.success(questionBankPage);
+        }
+        // 组合下创建人的名称
+        List<QuestionBankVo> questionBankList = questionBankPage.getList();
+        // 获取到用户id
+        Set<Long> userIds = questionBankList.stream().map(questionBankVo -> Long.parseLong(questionBankVo.getCreator())).collect(Collectors.toSet());
+        // 获取审核人id
+        Set<Long> reviewerIds = questionBankList.stream().map(QuestionBankVo::getReviewerId).collect(Collectors.toSet());
+        if (CollUtil.isNotEmpty(reviewerIds)) {
+            userIds.addAll(reviewerIds);
+         }
+        List<UserVo> userVoList = userService.getUserList(userIds);
+        Map<Long, UserVo> userVoMap = userVoList.stream().collect(Collectors.toMap(UserVo::getId, Function.identity()));
+        for (QuestionBankVo questionBankVo : questionBankList) {
+            questionBankVo.setCreatorName(userVoMap.get(Long.parseLong(questionBankVo.getCreator())).getUserName());
+            if(ObjectUtil.isNotEmpty(questionBankVo.getReviewerId()) && userVoMap.containsKey(questionBankVo.getReviewerId())){
+                questionBankVo.setReviewer(userVoMap.get(questionBankVo.getReviewerId()).getUserName());
+            }
+        }
+        return CommonResult.success(questionBankPage);
     }
 
     @PostMapping("/review")

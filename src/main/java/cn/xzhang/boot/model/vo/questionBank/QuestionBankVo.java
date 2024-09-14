@@ -58,4 +58,16 @@ public class QuestionBankVo implements Serializable {
     @Schema(description = "审核信息",requiredMode = Schema.RequiredMode.REQUIRED)
     private String reviewMessage;
 
+    @Schema(description = "审核人")
+    private String reviewer;
+
+    @Schema(description = "审核人id")
+    private Long reviewerId;
+
+    @Schema(description = "创建人id")
+    private String creator;
+
+    @Schema(description = "创建人名称")
+    private String creatorName;
+
 }

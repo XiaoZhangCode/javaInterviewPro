@@ -2,18 +2,22 @@ package cn.xzhang.boot.controller;
 
 import cn.dev33.satoken.annotation.SaCheckRole;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.xzhang.boot.common.pojo.CommonResult;
 import cn.xzhang.boot.common.pojo.PageResult;
 import cn.xzhang.boot.constant.UserConstant;
-import cn.xzhang.boot.model.dto.question.QuestionAddReqDTO;
-import cn.xzhang.boot.model.dto.question.QuestionPageReqDTO;
-import cn.xzhang.boot.model.dto.question.QuestionUpdateReqDTO;
+import cn.xzhang.boot.model.dto.question.*;
+import cn.xzhang.boot.model.dto.questionBank.QuestionBankBatchReviewReqDTO;
+import cn.xzhang.boot.model.dto.questionBank.QuestionBankReviewReqDTO;
 import cn.xzhang.boot.model.entity.Question;
 import cn.xzhang.boot.model.vo.question.QuestionSimpleVo;
 import cn.xzhang.boot.model.vo.question.QuestionVo;
+import cn.xzhang.boot.model.vo.questionBank.QuestionBankVo;
 import cn.xzhang.boot.model.vo.questionbankquestion.QuestionBankQuestionVo;
+import cn.xzhang.boot.model.vo.user.UserVo;
 import cn.xzhang.boot.service.QuestionBankQuestionService;
 import cn.xzhang.boot.service.QuestionService;
+import cn.xzhang.boot.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
@@ -26,6 +30,9 @@ import javax.validation.Valid;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static cn.xzhang.boot.common.exception.enums.GlobalErrorCodeConstants.BAD_REQUEST_PARAMS;
@@ -46,6 +53,9 @@ public class QuestionController {
 
     @Resource
     private QuestionBankQuestionService questionBankQuestionService;
+
+    @Resource
+    private UserService userService;
 
 
     /**
@@ -127,7 +137,28 @@ public class QuestionController {
     @SaCheckRole(UserConstant.ADMIN_ROLE)
     public CommonResult<PageResult<QuestionVo>> getQuestionPage(QuestionPageReqDTO questionPageReqDTO) {
         // 调用服务层方法，获取分页信息，并返回结果
-        return success(questionService.getQuestionPage(questionPageReqDTO));
+        PageResult<QuestionVo> questionPage = questionService.getQuestionPage(questionPageReqDTO);
+        if (ObjectUtil.isEmpty(questionPage) || CollUtil.isEmpty(questionPage.getList())) {
+            return CommonResult.success(questionPage);
+        }
+        // 组合下创建人的名称
+        List<QuestionVo> questionList = questionPage.getList();
+        // 获取到用户id
+        Set<Long> userIds = questionList.stream().map(QuestionVo -> Long.parseLong(QuestionVo.getCreator())).collect(Collectors.toSet());
+        // 获取审核人id
+        Set<Long> reviewerIds = questionList.stream().map(QuestionVo::getReviewerId).collect(Collectors.toSet());
+        if (CollUtil.isNotEmpty(reviewerIds)) {
+            userIds.addAll(reviewerIds);
+        }
+        List<UserVo> userVoList = userService.getUserList(userIds);
+        Map<Long, UserVo> userVoMap = userVoList.stream().collect(Collectors.toMap(UserVo::getId, Function.identity()));
+        for (QuestionVo questionVo : questionList) {
+            questionVo.setCreatorName(userVoMap.get(Long.parseLong(questionVo.getCreator())).getUserName());
+            if(ObjectUtil.isNotEmpty(questionVo.getReviewerId()) && userVoMap.containsKey(questionVo.getReviewerId())){
+                questionVo.setReviewer(userVoMap.get(questionVo.getReviewerId()).getUserName());
+            }
+        }
+        return success(questionPage);
     }
 
 
@@ -159,6 +190,24 @@ public class QuestionController {
         questionBankQuestionService.updateQuestionBank(id, questionBankId);
         return success(true);
     }
+
+    @PostMapping("/review")
+    @Operation(summary = "审核题目")
+    @SaCheckRole(UserConstant.ADMIN_ROLE)
+    public CommonResult<Boolean> reviewQuestion(@RequestBody QuestionReviewReqDTO reviewReqDTO) {
+        // 调用服务层方法，审核题库，并返回结果
+        return CommonResult.success(questionService.reviewQuestion(reviewReqDTO));
+    }
+
+
+    @PostMapping("/review/batch")
+    @Operation(summary = "批量审核题目")
+    @SaCheckRole(UserConstant.ADMIN_ROLE)
+    public CommonResult<Boolean> reviewQuestionBatch(@RequestBody QuestionBatchReviewReqDTO reviewReqDTO) {
+        // 调用服务层方法，批量审核题库，并返回结果
+        return CommonResult.success(questionService.reviewQuestionBatch(reviewReqDTO));
+    }
+
 
 
 }
