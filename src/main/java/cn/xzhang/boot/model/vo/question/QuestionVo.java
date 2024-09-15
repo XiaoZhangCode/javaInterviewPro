@@ -53,13 +53,19 @@ public class QuestionVo implements Serializable {
 
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Schema(description = "审核时间",requiredMode = Schema.RequiredMode.REQUIRED)
-    private Date reviewTime;
+    private String reviewTime;
 
     @Schema(description = "审核信息",requiredMode = Schema.RequiredMode.REQUIRED)
     private String reviewMessage;
 
     @Schema(description = "审核人")
     private String reviewer;
+
+    @Schema(description = "审核人头像")
+    private String reviewerAvatar;
+
+    @Schema(description = "作者头像")
+    private String authorAvatar;
 
     @Schema(description = "审核人id")
     private Long reviewerId;
@@ -69,6 +75,11 @@ public class QuestionVo implements Serializable {
 
     @Schema(description = "创建人名称")
     private String creatorName;
+
+    @Schema(description = "创建时间")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private String createTime;
+
 
 
 }

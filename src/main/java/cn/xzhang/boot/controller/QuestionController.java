@@ -10,6 +10,7 @@ import cn.xzhang.boot.model.dto.question.*;
 import cn.xzhang.boot.model.dto.questionBank.QuestionBankBatchReviewReqDTO;
 import cn.xzhang.boot.model.dto.questionBank.QuestionBankReviewReqDTO;
 import cn.xzhang.boot.model.entity.Question;
+import cn.xzhang.boot.model.entity.User;
 import cn.xzhang.boot.model.vo.question.QuestionSimpleVo;
 import cn.xzhang.boot.model.vo.question.QuestionVo;
 import cn.xzhang.boot.model.vo.questionBank.QuestionBankVo;
@@ -116,7 +117,17 @@ public class QuestionController {
             return CommonResult.error(BAD_REQUEST_PARAMS);
         }
         // 调用服务层方法，获取信息，并返回结果
-        return success(questionService.getQuestionVO(questionService.getById(id)));
+        QuestionVo questionVO = questionService.getQuestionVO(questionService.getById(id));
+        // 获取创建用户信息
+        User user = userService.getById(questionVO.getCreator());
+        questionVO.setCreatorName(user.getUserName());
+        questionVO.setAuthorAvatar(user.getUserAvatar());
+        if (ObjectUtil.isNotEmpty(questionVO.getReviewerId())) {
+            User reviewUser = userService.getById(questionVO.getReviewerId());
+            questionVO.setReviewer(reviewUser.getUserName());
+            questionVO.setAuthorAvatar(reviewUser.getUserAvatar());
+        }
+        return success(questionVO);
     }
 
     @GetMapping("/get/vo")
@@ -154,7 +165,7 @@ public class QuestionController {
         Map<Long, UserVo> userVoMap = userVoList.stream().collect(Collectors.toMap(UserVo::getId, Function.identity()));
         for (QuestionVo questionVo : questionList) {
             questionVo.setCreatorName(userVoMap.get(Long.parseLong(questionVo.getCreator())).getUserName());
-            if(ObjectUtil.isNotEmpty(questionVo.getReviewerId()) && userVoMap.containsKey(questionVo.getReviewerId())){
+            if (ObjectUtil.isNotEmpty(questionVo.getReviewerId()) && userVoMap.containsKey(questionVo.getReviewerId())) {
                 questionVo.setReviewer(userVoMap.get(questionVo.getReviewerId()).getUserName());
             }
         }
@@ -207,7 +218,6 @@ public class QuestionController {
         // 调用服务层方法，批量审核题库，并返回结果
         return CommonResult.success(questionService.reviewQuestionBatch(reviewReqDTO));
     }
-
 
 
 }
