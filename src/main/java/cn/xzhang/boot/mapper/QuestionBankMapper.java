@@ -19,7 +19,7 @@ public interface QuestionBankMapper extends BaseMapperPlus<QuestionBank> {
         return selectPage(questionbankPageReqDTO, new LambdaQueryWrapper<QuestionBank>()
                 .eq(Objects.nonNull(questionbankPageReqDTO.getId()), QuestionBank::getId, questionbankPageReqDTO.getId())
                 .like(Objects.nonNull(questionbankPageReqDTO.getTitle()), QuestionBank::getTitle, questionbankPageReqDTO.getTitle())
-                .eq(Objects.nonNull(questionbankPageReqDTO.getReviewStatus()), QuestionBank::getDescription, questionbankPageReqDTO.getReviewStatus())
+                .eq(Objects.nonNull(questionbankPageReqDTO.getReviewStatus()), QuestionBank::getReviewStatus, questionbankPageReqDTO.getReviewStatus())
                 .orderByDesc(QuestionBank::getCreateTime)
         );
     }

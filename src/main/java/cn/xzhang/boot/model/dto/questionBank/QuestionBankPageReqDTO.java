@@ -26,7 +26,6 @@ public class QuestionBankPageReqDTO extends PageParam implements Serializable {
     private Long id;
 
     @NotNull(message = "标题不能为空")
-    @Schema(description = "标题",requiredMode = Schema.RequiredMode.REQUIRED)
     private String title;
 
 

@@ -4,6 +4,7 @@ import cn.dev33.satoken.annotation.SaCheckRole;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.xzhang.boot.common.pojo.CommonResult;
+import cn.xzhang.boot.common.pojo.PageParam;
 import cn.xzhang.boot.common.pojo.PageResult;
 import cn.xzhang.boot.constant.UserConstant;
 import cn.xzhang.boot.model.dto.question.*;
@@ -11,6 +12,7 @@ import cn.xzhang.boot.model.dto.questionBank.QuestionBankBatchReviewReqDTO;
 import cn.xzhang.boot.model.dto.questionBank.QuestionBankReviewReqDTO;
 import cn.xzhang.boot.model.entity.Question;
 import cn.xzhang.boot.model.entity.User;
+import cn.xzhang.boot.model.enums.QuestionBankReviewStatusEnum;
 import cn.xzhang.boot.model.vo.question.QuestionSimpleVo;
 import cn.xzhang.boot.model.vo.question.QuestionVo;
 import cn.xzhang.boot.model.vo.questionBank.QuestionBankVo;
@@ -125,7 +127,7 @@ public class QuestionController {
         if (ObjectUtil.isNotEmpty(questionVO.getReviewerId())) {
             User reviewUser = userService.getById(questionVO.getReviewerId());
             questionVO.setReviewer(reviewUser.getUserName());
-            questionVO.setAuthorAvatar(reviewUser.getUserAvatar());
+            questionVO.setReviewerAvatar(reviewUser.getUserAvatar());
         }
         return success(questionVO);
     }
@@ -171,6 +173,18 @@ public class QuestionController {
         }
         return success(questionPage);
     }
+
+    @GetMapping("/user/page")
+    @Operation(summary = "用户分页获取题目列表")
+    public CommonResult<PageResult<QuestionVo>> getUserQuestionPage(PageParam pageParam) {
+        QuestionPageReqDTO questionPageReqDTO = new QuestionPageReqDTO();
+        questionPageReqDTO.setPageNo(pageParam.getPageNo());
+        questionPageReqDTO.setPageSize(pageParam.getPageSize());
+        questionPageReqDTO.setReviewStatus(QuestionBankReviewStatusEnum.PASS.getValue());
+        return success(questionService.getQuestionPage(questionPageReqDTO));
+    }
+
+
 
 
     @GetMapping("/list")

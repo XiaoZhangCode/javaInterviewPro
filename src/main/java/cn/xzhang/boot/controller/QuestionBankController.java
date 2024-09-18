@@ -4,11 +4,13 @@ import cn.dev33.satoken.annotation.SaCheckRole;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.xzhang.boot.common.pojo.CommonResult;
+import cn.xzhang.boot.common.pojo.PageParam;
 import cn.xzhang.boot.common.pojo.PageResult;
 import cn.xzhang.boot.constant.UserConstant;
 import cn.xzhang.boot.model.dto.questionBank.*;
 import cn.xzhang.boot.model.entity.Question;
 import cn.xzhang.boot.model.entity.QuestionBank;
+import cn.xzhang.boot.model.enums.QuestionBankReviewStatusEnum;
 import cn.xzhang.boot.model.vo.questionBank.QuestionBankSimpleVo;
 import cn.xzhang.boot.model.vo.questionBank.QuestionBankVo;
 import cn.xzhang.boot.model.vo.questionbankquestion.QuestionBankQuestionVo;
@@ -143,12 +145,22 @@ public class QuestionBankController {
         return CommonResult.success(questionBankVO);
     }
 
+    @GetMapping("/user/page")
+    @Operation(summary = "用户分页获取题库表列表")
+    public CommonResult<PageResult<QuestionBankVo>> getUserQuestionBankPage(PageParam pageParam) {
+        QuestionBankPageReqDTO pageReqDTO = new QuestionBankPageReqDTO();
+        pageReqDTO.setPageNo(pageParam.getPageNo());
+        pageReqDTO.setPageSize(pageParam.getPageSize());
+        pageReqDTO.setReviewStatus(QuestionBankReviewStatusEnum.PASS.getValue());
+        return CommonResult.success(questionbankService.getQuestionBankPage(pageReqDTO));
+    }
+
     @GetMapping("/page")
     @Operation(summary = "分页获取题库表列表")
     @SaCheckRole(UserConstant.ADMIN_ROLE)
-    public CommonResult<PageResult<QuestionBankVo>> getQuestionBankPage(QuestionBankPageReqDTO questionbankPageReqDTO) {
+    public CommonResult<PageResult<QuestionBankVo>> getQuestionBankPage(QuestionBankPageReqDTO questionBankPageReqDTO) {
         // 调用服务层方法，获取分页信息，并返回结果
-        PageResult<QuestionBankVo> questionBankPage = questionbankService.getQuestionBankPage(questionbankPageReqDTO);
+        PageResult<QuestionBankVo> questionBankPage = questionbankService.getQuestionBankPage(questionBankPageReqDTO);
         if (ObjectUtil.isEmpty(questionBankPage) || CollUtil.isEmpty(questionBankPage.getList())) {
             return CommonResult.success(questionBankPage);
         }
