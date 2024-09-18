@@ -35,6 +35,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static cn.xzhang.boot.common.exception.enums.GlobalErrorCodeConstants.BAD_REQUEST_PARAMS;
+import static cn.xzhang.boot.common.exception.enums.GlobalErrorCodeConstants.TOO_MANY_REQUESTS;
 
 /**
  * 题库表管理
@@ -148,6 +149,9 @@ public class QuestionBankController {
     @GetMapping("/user/page")
     @Operation(summary = "用户分页获取题库表列表")
     public CommonResult<PageResult<QuestionBankVo>> getUserQuestionBankPage(PageParam pageParam) {
+        if (pageParam.getPageSize()>200){
+            return CommonResult.error(TOO_MANY_REQUESTS);
+        }
         QuestionBankPageReqDTO pageReqDTO = new QuestionBankPageReqDTO();
         pageReqDTO.setPageNo(pageParam.getPageNo());
         pageReqDTO.setPageSize(pageParam.getPageSize());
