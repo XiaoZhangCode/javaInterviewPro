@@ -27,4 +27,7 @@ public class UserQuestionPageReqDTO extends PageParam implements Serializable {
     @Schema(description = "标签")
     private String tag;
 
+    @Schema(description = "题库id")
+    private Long questionBankId;
+
 }

@@ -2,14 +2,17 @@ package cn.xzhang.boot.service.impl;
 
 import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.json.JSONUtil;
 import cn.xzhang.boot.common.exception.ServiceException;
 import cn.xzhang.boot.common.pojo.PageResult;
+import cn.xzhang.boot.mapper.QuestionBankQuestionMapper;
 import cn.xzhang.boot.mapper.QuestionMapper;
 import cn.xzhang.boot.model.dto.question.*;
 import cn.xzhang.boot.model.entity.Question;
+import cn.xzhang.boot.model.entity.QuestionBankQuestion;
 import cn.xzhang.boot.model.vo.question.QuestionSimpleVo;
 import cn.xzhang.boot.model.vo.question.QuestionVo;
 import cn.xzhang.boot.service.QuestionService;
@@ -19,7 +22,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static cn.xzhang.boot.common.exception.enums.GlobalErrorCodeConstants.*;
@@ -35,6 +40,9 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
 
     @Resource
     private QuestionMapper questionMapper;
+
+    @Resource
+    private QuestionBankQuestionMapper questionBankQuestionMapper;
 
     /**
      * 添加新题目
@@ -189,8 +197,19 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
 
     @Override
     public PageResult<QuestionVo> getUserQuestionPage(UserQuestionPageReqDTO reqDTO) {
-        PageResult<Question> pageResult = questionMapper.selectUserPage(reqDTO);
-        if (pageResult.getList() == null) {
+        PageResult<Question> pageResult;
+        if (ObjectUtil.isNotEmpty(reqDTO.getQuestionBankId())) {
+           List<Long> questionIds =  questionBankQuestionMapper.selectListByBankId(reqDTO.getQuestionBankId());
+            if (CollectionUtil.isNotEmpty(questionIds)) {
+                pageResult = questionMapper.selectUserPageByBankId(reqDTO, questionIds);
+            } else {
+               return new PageResult<>(new ArrayList<>(), 0L);
+            }
+        } else {
+            pageResult = questionMapper.selectUserPage(reqDTO);
+
+        }
+        if (ObjectUtil.isEmpty(pageResult) || ObjectUtil.isEmpty(pageResult.getList())) {
             return PageResult.empty();
         }
         List<QuestionVo> questionVos = pageResult.getList().stream().map(question -> {

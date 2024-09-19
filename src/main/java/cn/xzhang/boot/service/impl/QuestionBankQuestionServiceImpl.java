@@ -36,8 +36,7 @@ public class QuestionBankQuestionServiceImpl extends ServiceImpl<QuestionBankQue
     @Resource
     private QuestionBankQuestionMapper questionbankquestionMapper;
 
-    @Resource
-    private QuestionBankQuestionMapper questionBankQuestionMapper;
+
 
     /**
      * 添加新题库题目关联
@@ -161,7 +160,7 @@ public class QuestionBankQuestionServiceImpl extends ServiceImpl<QuestionBankQue
 
     @Override
     public void updateQuestionBank(Long id, Long questionBankId) {
-        QuestionBankQuestion bankQuestion = questionBankQuestionMapper.selectOne(
+        QuestionBankQuestion bankQuestion = questionbankquestionMapper.selectOne(
                 new LambdaQueryWrapper<QuestionBankQuestion>()
                         .eq(QuestionBankQuestion::getQuestionBankId, id)
                         .eq(QuestionBankQuestion::getQuestionBankId, questionBankId)
@@ -170,14 +169,14 @@ public class QuestionBankQuestionServiceImpl extends ServiceImpl<QuestionBankQue
             QuestionBankQuestion bankQuestion1 = new QuestionBankQuestion();
             bankQuestion1.setQuestionBankId(questionBankId);
             bankQuestion1.setQuestionId(id);
-            questionBankQuestionMapper.insert(bankQuestion1);
+            questionbankquestionMapper.insert(bankQuestion1);
             return;
         }
         if (bankQuestion.getQuestionBankId().equals(questionBankId)) {
             return;
         }
         bankQuestion.setQuestionBankId(questionBankId);
-        questionBankQuestionMapper.updateById(bankQuestion);
+        questionbankquestionMapper.updateById(bankQuestion);
     }
 
 }

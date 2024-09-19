@@ -108,9 +108,8 @@ public class QuestionBankController {
     }
 
     @GetMapping("/get")
-    @Operation(summary = "获取题库表")
+    @Operation(summary = "获取题库简要表")
     @Parameter(name = "id", description = "题库表ID", required = true)
-    @SaCheckRole(UserConstant.ADMIN_ROLE)
     public CommonResult<QuestionBankVo> getQuestionBank(@RequestParam("id") Long id) {
         // 检查传入的ID是否为空
         if (id == null) {
@@ -121,7 +120,8 @@ public class QuestionBankController {
     }
 
     @GetMapping("/get/vo")
-    @Operation(summary = "获取题库表简要信息")
+    @Operation(summary = "获取题库表信息")
+    @SaCheckRole(UserConstant.ADMIN_ROLE)
     @Parameter(name = "id", description = "题库表ID", required = true)
     public CommonResult<QuestionBankSimpleVo> getQuestionBankVO(@RequestParam("id") Long id) {
         // 检查传入的ID是否为空
@@ -134,11 +134,13 @@ public class QuestionBankController {
             List<QuestionBankQuestionVo> questionBankVos = questionBankQuestionService.getListByQuestionBankId(questionBankVO.getId());
             if (CollUtil.isEmpty(questionBankVos)) {
                 questionBankVO.setQuestionVoList(new ArrayList<>());
+                return CommonResult.success(questionBankVO);
             }
             List<Long> questionIds = questionBankVos.stream().map(QuestionBankQuestionVo::getQuestionId).collect(Collectors.toList());
             List<Question> questions = questionService.selectListInIds(questionIds);
             if (CollUtil.isEmpty(questions)) {
                 questionBankVO.setQuestionVoList(new ArrayList<>());
+                return CommonResult.success(questionBankVO);
             }
             questionBankVO.setQuestionVoList(questions.stream().map(questionService::getQuestionVO).collect(Collectors.toList()));
         }
