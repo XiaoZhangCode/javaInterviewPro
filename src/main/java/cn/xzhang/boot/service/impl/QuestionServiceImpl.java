@@ -187,6 +187,21 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         return updated > 0;
     }
 
+    @Override
+    public PageResult<QuestionVo> getUserQuestionPage(UserQuestionPageReqDTO reqDTO) {
+        PageResult<Question> pageResult = questionMapper.selectUserPage(reqDTO);
+        if (pageResult.getList() == null) {
+            return PageResult.empty();
+        }
+        List<QuestionVo> questionVos = pageResult.getList().stream().map(question -> {
+            QuestionVo questionVo = new QuestionVo();
+            BeanUtil.copyProperties(question, questionVo, "tags");
+            questionVo.setTags(JSONUtil.toList(question.getTags(), String.class));
+            return questionVo;
+        }).collect(Collectors.toList());
+        return new PageResult<>(questionVos, pageResult.getTotal());
+    }
+
 }
 
 

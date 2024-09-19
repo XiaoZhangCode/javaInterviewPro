@@ -176,12 +176,8 @@ public class QuestionController {
 
     @GetMapping("/user/page")
     @Operation(summary = "用户分页获取题目列表")
-    public CommonResult<PageResult<QuestionVo>> getUserQuestionPage(PageParam pageParam) {
-        QuestionPageReqDTO questionPageReqDTO = new QuestionPageReqDTO();
-        questionPageReqDTO.setPageNo(pageParam.getPageNo());
-        questionPageReqDTO.setPageSize(pageParam.getPageSize());
-        questionPageReqDTO.setReviewStatus(QuestionBankReviewStatusEnum.PASS.getValue());
-        return success(questionService.getQuestionPage(questionPageReqDTO));
+    public CommonResult<PageResult<QuestionVo>> getUserQuestionPage(UserQuestionPageReqDTO UserQuestionPageReqDTO) {
+        return success(questionService.getUserQuestionPage(UserQuestionPageReqDTO));
     }
 
 

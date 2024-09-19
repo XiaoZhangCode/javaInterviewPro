@@ -83,4 +83,11 @@ public interface QuestionService extends IService<Question> {
      * @return boolean
      */
     Boolean reviewQuestionBatch(QuestionBatchReviewReqDTO reviewReqDTO);
+
+    /**
+     * 用户获取题目列表
+     * @param reqDTO 参数
+     * @return 题目列表
+     */
+    PageResult<QuestionVo> getUserQuestionPage(UserQuestionPageReqDTO reqDTO);
 }
