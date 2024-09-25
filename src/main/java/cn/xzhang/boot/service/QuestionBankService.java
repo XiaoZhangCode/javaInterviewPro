@@ -7,6 +7,8 @@ import cn.xzhang.boot.model.vo.questionBank.QuestionBankSimpleVo;
 import cn.xzhang.boot.model.vo.questionBank.QuestionBankVo;
 import com.baomidou.mybatisplus.extension.service.IService;
 
+import java.util.List;
+
 /**
  * @author <a href="https://github.com/XiaoZhangCode">XiaoZhangCode</a>
  * @description 针对表【questionBank(题库表表)】的数据库操作Service
@@ -74,4 +76,12 @@ public interface QuestionBankService extends IService<QuestionBank> {
      * @return 审核结果
      */
     Boolean reviewQuestionBankBatch(QuestionBankBatchReviewReqDTO questionBankBatchReviewReqDTO);
+
+    /**
+     * 获取题库列表信息
+     *
+     * @param keyword 参数
+     * @return 题库表列表
+     */
+    List<QuestionBankVo> searchQuestionBankList(String keyword);
 }

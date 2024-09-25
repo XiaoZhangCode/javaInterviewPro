@@ -22,7 +22,7 @@ public class QuestionBankQuestionBaseDTO implements Serializable {
     private Long questionId;
 
     @Schema(description = "题目顺序（题号）")
-    private Integer questionOrder;
+    private Integer questionOrder = 0;
 
     @Schema(description = "创建用户 id")
     private Long userId;

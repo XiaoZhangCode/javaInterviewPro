@@ -126,6 +126,15 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
      */
     @Override
     public PageResult<QuestionVo> getQuestionPage(QuestionPageReqDTO questionPageReqDTO) {
+        Long questionBankId = questionPageReqDTO.getQuestionBankId();
+        if (ObjectUtil.isNotEmpty(questionBankId)) {
+            List<Long> questionIds =  questionBankQuestionMapper.selectListByBankId(questionBankId);
+            if (CollectionUtil.isNotEmpty(questionIds)) {
+                questionPageReqDTO.setQuestionIdList(questionIds);
+            } else {
+                return new PageResult<>(new ArrayList<>(), 0L);
+            }
+        }
         PageResult<Question> pageResult = questionMapper.selectPage(questionPageReqDTO);
         if (pageResult.getList() == null) {
             return PageResult.empty();

@@ -207,5 +207,11 @@ public class QuestionBankController {
         return CommonResult.success(questionbankService.reviewQuestionBankBatch(questionBankBatchReviewReqDTO));
     }
 
+    @GetMapping("/searchList")
+    @Operation(summary = "根据关键词搜索题库")
+    public CommonResult<List<QuestionBankVo>> searchQuestionBankList(@RequestParam("keyword") String keyword) {
+        // 调用服务层方法，根据关键词搜索题库，并返回结果
+        return CommonResult.success(questionbankService.searchQuestionBankList(keyword));
+    }
 
 }

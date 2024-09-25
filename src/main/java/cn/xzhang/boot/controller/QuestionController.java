@@ -180,9 +180,6 @@ public class QuestionController {
         return success(questionService.getUserQuestionPage(UserQuestionPageReqDTO));
     }
 
-
-
-
     @GetMapping("/list")
     @Operation(summary = "根据题库编号获取题目信息")
     @Parameter(name = "questionBankId", description = "题库id", required = true)
@@ -227,6 +224,13 @@ public class QuestionController {
     public CommonResult<Boolean> reviewQuestionBatch(@RequestBody QuestionBatchReviewReqDTO reviewReqDTO) {
         // 调用服务层方法，批量审核题库，并返回结果
         return CommonResult.success(questionService.reviewQuestionBatch(reviewReqDTO));
+    }
+
+    @GetMapping("/getQuestionBankIdList")
+    @Operation(summary = "根据题目id获取到关联到题库列表")
+    @Parameter(name = "id", description = "题目id", required = true)
+    public CommonResult<List<QuestionBankVo>> getQuestionBankIdList(@RequestParam("id") Long id) {
+        return success(questionBankQuestionService.getListByQuestionId(id));
     }
 
 

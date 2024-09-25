@@ -2,8 +2,10 @@ package cn.xzhang.boot.service.impl;
 
 import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.xzhang.boot.common.exception.ServiceException;
 import cn.xzhang.boot.common.pojo.PageResult;
 import cn.xzhang.boot.mapper.QuestionBankMapper;
@@ -19,6 +21,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -174,6 +178,26 @@ public class QuestionBankServiceImpl extends ServiceImpl<QuestionBankMapper, Que
                         .in(QuestionBank::getId, idList)
         );
         return updated > 0;
+    }
+
+    @Override
+    public List<QuestionBankVo> searchQuestionBankList(String keyword) {
+        List<QuestionBank> questionBanks;
+        if (StrUtil.isBlank(keyword)) {
+            questionBanks = questionbankMapper.selectList();
+        } else {
+            questionBanks = questionbankMapper.selectList(
+                    Wrappers.lambdaQuery(QuestionBank.class)
+                            .like(QuestionBank::getTitle, keyword)
+                            .or()
+                            .like(QuestionBank::getDescription, keyword)
+            );
+        }
+        if (CollUtil.isEmpty(questionBanks)) {
+            return new ArrayList<>();
+        }
+        return questionBanks.stream().map(this::getQuestionBankVO).collect(Collectors.toList());
+
     }
 
 }

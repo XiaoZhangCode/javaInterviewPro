@@ -1,19 +1,24 @@
 package cn.xzhang.boot.service.impl;
 
+import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.xzhang.boot.common.exception.ServiceException;
 import cn.xzhang.boot.common.pojo.PageResult;
+import cn.xzhang.boot.mapper.QuestionBankMapper;
 import cn.xzhang.boot.mapper.QuestionBankQuestionMapper;
 import cn.xzhang.boot.model.dto.questionBankQuestion.QuestionBankQuestionAddReqDTO;
 import cn.xzhang.boot.model.dto.questionBankQuestion.QuestionBankQuestionPageReqDTO;
 import cn.xzhang.boot.model.dto.questionBankQuestion.QuestionBankQuestionUpdateReqDTO;
+import cn.xzhang.boot.model.entity.QuestionBank;
 import cn.xzhang.boot.model.entity.QuestionBankQuestion;
+import cn.xzhang.boot.model.vo.questionBank.QuestionBankVo;
 import cn.xzhang.boot.model.vo.questionbankquestion.QuestionBankQuestionSimpleVo;
 import cn.xzhang.boot.model.vo.questionbankquestion.QuestionBankQuestionVo;
 import cn.xzhang.boot.service.QuestionBankQuestionService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,7 +40,8 @@ public class QuestionBankQuestionServiceImpl extends ServiceImpl<QuestionBankQue
 
     @Resource
     private QuestionBankQuestionMapper questionbankquestionMapper;
-
+    @Autowired
+    private QuestionBankMapper questionBankMapper;
 
 
     /**
@@ -45,53 +51,16 @@ public class QuestionBankQuestionServiceImpl extends ServiceImpl<QuestionBankQue
      * @return 添加成功返回题库题目关联id
      */
     @Override
-    public long addQuestionBankQuestion(QuestionBankQuestionAddReqDTO questionBankQuestionReqDTO) {
+    public long bindQuestionBankQuestion(QuestionBankQuestionAddReqDTO questionBankQuestionReqDTO) {
+        questionBankQuestionReqDTO.setUserId(StpUtil.getLoginIdAsLong());
         QuestionBankQuestion questionBankQuestion = new QuestionBankQuestion();
         BeanUtil.copyProperties(questionBankQuestionReqDTO, questionBankQuestion);
-        if (!this.save(questionBankQuestion)) {
+        if (!questionbankquestionMapper.saveBind(questionBankQuestion)) {
             throw exception(ADD_FAIL);
         }
         return questionBankQuestion.getId();
     }
 
-    /**
-     * 更新题库题目关联信息
-     *
-     * @param questionBankQuestionReqDTO 题库题目关联信息更新请求DTO
-     * @return 更新成功返回true
-     */
-    @Override
-    public boolean updateQuestionBankQuestion(QuestionBankQuestionUpdateReqDTO questionBankQuestionReqDTO) {
-        if (questionBankQuestionReqDTO.getId() == null) {
-            throw exception(BAD_REQUEST);
-        }
-        QuestionBankQuestion questionBankQuestion = new QuestionBankQuestion();
-        BeanUtil.copyProperties(questionBankQuestionReqDTO, questionBankQuestion);
-        boolean b = this.updateById(questionBankQuestion);
-        if (!b) {
-            throw exception(UPDATE_FAIL);
-        }
-        return true;
-    }
-
-    /**
-     * 删除题库题目关联
-     *
-     * @param id 题库题目关联id
-     * @return 删除成功返回true
-     */
-    @Override
-    @Transactional(rollbackFor = ServiceException.class)
-    public boolean deleteQuestionBankQuestion(Long id) {
-        if (id == null) {
-            throw exception(BAD_REQUEST);
-        }
-        boolean b = this.removeById(id);
-        if (!b) {
-            throw exception(DELETE_FAIL);
-        }
-        return true;
-    }
 
     /**
      * 将题库题目关联对象转换为题库题目关联VO对象
@@ -109,25 +78,6 @@ public class QuestionBankQuestionServiceImpl extends ServiceImpl<QuestionBankQue
         return questionbankquestionSimpleVo;
     }
 
-    /**
-     * 获取题库题目关联分页信息
-     *
-     * @param questionBankQuestionPageReqDTO 题库题目关联分页请求DTO
-     * @return 返回题库题目关联分页结果
-     */
-    @Override
-    public PageResult<QuestionBankQuestionVo> getQuestionBankQuestionPage(QuestionBankQuestionPageReqDTO questionBankQuestionPageReqDTO) {
-        PageResult<QuestionBankQuestion> pageResult = questionbankquestionMapper.selectPage(questionBankQuestionPageReqDTO);
-        if (pageResult.getList() == null) {
-            return PageResult.empty();
-        }
-        List<QuestionBankQuestionVo> questionBankQuestionVos = pageResult.getList().stream().map(questionBankQuestion -> {
-            QuestionBankQuestionVo questionbankquestionVo = new QuestionBankQuestionVo();
-            BeanUtil.copyProperties(questionBankQuestion, questionbankquestionVo);
-            return questionbankquestionVo;
-        }).collect(Collectors.toList());
-        return new PageResult<>(questionBankQuestionVos, pageResult.getTotal());
-    }
 
     @Override
     public QuestionBankQuestionVo getQuestionBankQuestionVO(QuestionBankQuestion questionBankQuestion) {
@@ -142,10 +92,7 @@ public class QuestionBankQuestionServiceImpl extends ServiceImpl<QuestionBankQue
     @Override
     public List<QuestionBankQuestionVo> getListByQuestionBankId(Long questionBanId) {
         if (questionBanId != null) {
-            List<QuestionBankQuestion> questions = questionbankquestionMapper.selectList(
-                    new LambdaQueryWrapper<QuestionBankQuestion>()
-                            .eq(QuestionBankQuestion::getQuestionBankId, questionBanId)
-            );
+            List<QuestionBankQuestion> questions = questionbankquestionMapper.selectAllListByBankId(questionBanId);
             if (CollUtil.isEmpty(questions)) {
                 return Collections.emptyList();
             }
@@ -162,7 +109,7 @@ public class QuestionBankQuestionServiceImpl extends ServiceImpl<QuestionBankQue
     public void updateQuestionBank(Long id, Long questionBankId) {
         QuestionBankQuestion bankQuestion = questionbankquestionMapper.selectOne(
                 new LambdaQueryWrapper<QuestionBankQuestion>()
-                        .eq(QuestionBankQuestion::getQuestionBankId, id)
+                        .eq(QuestionBankQuestion::getQuestionId, id)
                         .eq(QuestionBankQuestion::getQuestionBankId, questionBankId)
         );
         if (bankQuestion == null) {
@@ -177,6 +124,35 @@ public class QuestionBankQuestionServiceImpl extends ServiceImpl<QuestionBankQue
         }
         bankQuestion.setQuestionBankId(questionBankId);
         questionbankquestionMapper.updateById(bankQuestion);
+    }
+
+    @Override
+    public List<QuestionBankVo> getListByQuestionId(Long id) {
+        if (id == null) {
+            return Collections.emptyList();
+        }
+        List<Long> questionBanksIds = questionbankquestionMapper.selectListByQuestionId(id);
+        if (CollUtil.isEmpty(questionBanksIds)) {
+            return Collections.emptyList();
+        }
+        List<QuestionBank> questionBanks = questionBankMapper.selectList(QuestionBank::getId, questionBanksIds);
+        return questionBanks.stream().map(questionBank -> {
+            QuestionBankVo questionBankVo = new QuestionBankVo();
+            BeanUtil.copyProperties(questionBank, questionBankVo);
+            return questionBankVo;
+        }).collect(Collectors.toList());
+    }
+
+    @Override
+    public long unbindQuestionBankQuestion(QuestionBankQuestionAddReqDTO reqDTO) {
+        if (reqDTO == null) {
+            return 0;
+        }
+        if (reqDTO.getQuestionBankId() != null && reqDTO.getQuestionId() != null) {
+            reqDTO.setUserId(StpUtil.getLoginIdAsLong());
+            return questionbankquestionMapper.unbind(reqDTO);
+        }
+        return 0;
     }
 
 }

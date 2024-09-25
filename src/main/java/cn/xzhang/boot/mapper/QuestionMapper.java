@@ -21,6 +21,7 @@ public interface QuestionMapper extends BaseMapperPlus<Question> {
     default PageResult<Question> selectPage(QuestionPageReqDTO questionPageReqDTO) {
         return selectPage(questionPageReqDTO, new LambdaQueryWrapper<Question>()
                 .eq(Objects.nonNull(questionPageReqDTO.getId()), Question::getId, questionPageReqDTO.getId())
+                .in(Objects.nonNull(questionPageReqDTO.getQuestionIdList()), Question::getId, questionPageReqDTO.getQuestionIdList())
                 .like(Objects.nonNull(questionPageReqDTO.getTitle()), Question::getTitle, questionPageReqDTO.getTitle())
                 .eq(Objects.nonNull(questionPageReqDTO.getReviewStatus()), Question::getReviewStatus, questionPageReqDTO.getReviewStatus())
                 .orderByDesc(Question::getCreateTime)

@@ -31,5 +31,12 @@ public class QuestionPageReqDTO extends PageParam implements Serializable {
     @Schema(description = "审核状态",requiredMode = Schema.RequiredMode.REQUIRED)
     private Integer reviewStatus;
 
+    @Schema(description = "题库id")
+    private Long questionBankId;
+
+
+    @Schema(description = "题目列表")
+    private List<Long> questionIdList;
+
 
 }
