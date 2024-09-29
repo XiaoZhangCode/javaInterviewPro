@@ -11,8 +11,10 @@ import cn.xzhang.boot.model.vo.user.UserSimpleVo;
 import cn.xzhang.boot.model.vo.user.UserVo;
 import com.baomidou.mybatisplus.extension.service.IService;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author <a href="https://github.com/XiaoZhangCode">XiaoZhangCode</a>
@@ -124,4 +126,34 @@ public interface UserService extends IService<User> {
      * @return 用户列表
      */
     List<UserVo> getUserList(Collection<Long> userIds);
+
+
+    /**
+     * 添加用户签到记录
+     *
+     * @param userId 用户 id
+     * @return 当前是否已签到成功
+     */
+    boolean addUserSignIn(long userId);
+
+    /**
+     * 获取用户某个年份的签到记录
+     *
+     * @param userId 用户 id
+     * @param year   年份（为空表示当前年份）
+     * @return 签到记录映射
+     */
+    Map<LocalDate, Boolean> getUserSignInRecord(long userId, Integer year);
+
+
+    /**
+     * 获取用户某个年份的签到记录 优化
+     *
+     * @param userId 用户 id
+     * @param year   年份（为空表示当前年份）
+     * @return 签到记录映射
+     */
+    List<Integer> getUserSignInRecordOptimize(long userId, Integer year);
+
+    List<Integer> getUserSignInRecordFinal(long loginUserId, Integer year);
 }

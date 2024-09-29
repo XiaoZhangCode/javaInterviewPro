@@ -19,7 +19,12 @@ import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Map;
 
 import static cn.xzhang.boot.common.exception.enums.GlobalErrorCodeConstants.BAD_REQUEST_PARAMS;
 import static cn.xzhang.boot.common.exception.enums.GlobalErrorCodeConstants.BAD_REQUEST_PARAM_ERROR;
@@ -136,7 +141,7 @@ public class UserController {
     @DeleteMapping("/delete")
     @Operation(summary = "删除用户")
     @SaCheckRole(UserConstant.ADMIN_ROLE)
-    @Parameter(name = "id", description = "用户ID",required = true)
+    @Parameter(name = "id", description = "用户ID", required = true)
     public CommonResult<Boolean> deleteUser(@RequestParam("id") Long id) {
         // 检查传入的用户ID是否为空
         if (id == null) {
@@ -150,7 +155,7 @@ public class UserController {
 
     @GetMapping("/get")
     @Operation(summary = "获取用户")
-    @Parameter(name = "id", description = "用户ID",required = true)
+    @Parameter(name = "id", description = "用户ID", required = true)
     @SaCheckRole(UserConstant.ADMIN_ROLE)
     public CommonResult<UserVo> getUser(@RequestParam("id") Long id) {
         // 检查传入的用户ID是否为空
@@ -163,7 +168,7 @@ public class UserController {
 
     @GetMapping("/get/vo")
     @Operation(summary = "获取用户")
-    @Parameter(name = "id", description = "用户ID",required = true)
+    @Parameter(name = "id", description = "用户ID", required = true)
     public CommonResult<UserSimpleVo> getUserVO(@RequestParam("id") Long id) {
         // 检查传入的用户ID是否为空
         if (id == null) {
@@ -198,7 +203,6 @@ public class UserController {
     }
 
 
-
     // 修改个人信息
     @PutMapping("/update/profile")
     @Operation(summary = "修改个人信息")
@@ -225,8 +229,68 @@ public class UserController {
     }
 
 
+    /**
+     * 添加用户签到记录
+     *
+     * @return 当前是否已签到成功
+     */
+    @PostMapping("/add/sign_in")
+    @Operation(summary = "添加用户签到记录")
+    @SaCheckLogin
+    public CommonResult<Boolean> addUserSignIn() {
+        // 必须要登录才能签到
+        long loginUserId = StpUtil.getLoginIdAsLong();
+        boolean result = userService.addUserSignIn(loginUserId);
+        return CommonResult.success(result);
+    }
 
+    /**
+     * 获取用户签到记录
+     *
+     * @param year 年份（为空表示当前年份）
+     * @return 签到记录映射
+     */
+    @GetMapping("/get/sign_in")
+    @Operation(summary = "获取用户签到记录")
+    @SaCheckLogin
+    public CommonResult<Map<LocalDate, Boolean>> getUserSignInRecord(Integer year) {
+        // 必须要登录才能获取
+        long loginUserId = StpUtil.getLoginIdAsLong();
+        Map<LocalDate, Boolean> userSignInRecord = userService.getUserSignInRecord(loginUserId, year);
+        return CommonResult.success(userSignInRecord);
+    }
 
+    /**
+     * 获取用户签到记录 优化
+     *
+     * @param year 年份（为空表示当前年份） 优化
+     * @return 签到记录映射
+     */
+    @GetMapping("/get/sign_in/optimize")
+    @Operation(summary = "获取用户签到记录(优化)")
+    @SaCheckLogin
+    public CommonResult<List<Integer>> getUserSignInRecordOptimize(Integer year) {
+        // 必须要登录才能获取
+        long loginUserId = StpUtil.getLoginIdAsLong();
+        List<Integer> userSignInRecord = userService.getUserSignInRecordOptimize(loginUserId, year);
+        return CommonResult.success(userSignInRecord);
+    }
+
+    /**
+     * 获取用户签到记录 优化
+     *
+     * @param year 年份（为空表示当前年份） 优化
+     * @return 签到记录映射
+     */
+    @GetMapping("/get/sign_in/final")
+    @Operation(summary = "获取用户签到记录(最终)")
+    @SaCheckLogin
+    public CommonResult<List<Integer>> getUserSignInRecordFinal(Integer year) {
+        // 必须要登录才能获取
+        long loginUserId = StpUtil.getLoginIdAsLong();
+        List<Integer> userSignInRecord = userService.getUserSignInRecordFinal(loginUserId, year);
+        return CommonResult.success(userSignInRecord);
+    }
 
 
 }
