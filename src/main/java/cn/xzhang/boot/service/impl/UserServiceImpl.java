@@ -113,13 +113,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     public LoginUserVO userLogin(String userAccount, String userPassword) {
         // 校验输入参数
         if (StringUtils.isAnyBlank(userAccount, userPassword)) {
-            throw exception(BAD_REQUEST);
+            throw exception(BAD_REQUEST_PARAMS_ERROR,"账号或密码为空！");
         }
         if (userAccount.length() < 4) {
-            throw exception(BAD_REQUEST);
+            throw exception(BAD_REQUEST_PARAMS_ERROR,"无此账号！");
         }
         if (userPassword.length() < 8) {
-            throw exception(BAD_REQUEST);
+            throw exception(BAD_REQUEST_PARAMS_ERROR,"密码过短！");
         }
         // 对密码进行加密并验证用户是否存在
         String encryptPassword = DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes());
