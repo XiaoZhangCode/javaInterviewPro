@@ -90,4 +90,17 @@ public interface QuestionService extends IService<Question> {
      * @return 题目列表
      */
     PageResult<QuestionVo> getUserQuestionPage(UserQuestionPageReqDTO reqDTO);
+
+    /**
+     *  从ES中获取题目 分页
+     * @param questionQueryRequest 查询参数
+     * @return 题目数据
+     */
+    PageResult<QuestionVo> searchFromEs(UserQuestionPageReqDTO questionQueryRequest);
+
+    /**
+     * 查询所有的数据 包括已经删除的数据
+     * @return 所有数据
+     */
+    List<Question> listAll();
 }

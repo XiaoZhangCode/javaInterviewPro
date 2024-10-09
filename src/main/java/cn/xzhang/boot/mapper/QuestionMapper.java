@@ -7,8 +7,11 @@ import cn.xzhang.boot.model.dto.question.UserQuestionPageReqDTO;
 import cn.xzhang.boot.model.entity.Question;
 import cn.xzhang.boot.model.enums.QuestionBankReviewStatusEnum;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import org.apache.ibatis.annotations.Select;
 
 import java.util.Collection;
+import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -51,6 +54,15 @@ public interface QuestionMapper extends BaseMapperPlus<Question> {
 
         );
     }
+
+    @Select("select * from question")
+    List<Question> selectAllList();
+
+    /**
+     * 查询题目列表（包括已被删除的数据）
+     */
+    @Select("select * from question where updateTime >= #{minUpdateTime}")
+    List<Question> listQuestionWithDelete(Date minUpdateTime);
 
 }
 

@@ -233,5 +233,12 @@ public class QuestionController {
         return success(questionBankQuestionService.getListByQuestionId(id));
     }
 
+    @PostMapping("/search/page/vo")
+    @Operation(summary = "es获取题目分页")
+    public CommonResult<PageResult<QuestionVo>> searchQuestionVOByPage(@RequestBody UserQuestionPageReqDTO questionQueryRequest) {
+        PageResult<QuestionVo> questionPage = questionService.searchFromEs(questionQueryRequest);
+        return success(questionPage);
+    }
+
 
 }

@@ -2,6 +2,7 @@ package cn.xzhang.boot.service.impl;
 
 import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
@@ -18,11 +19,23 @@ import cn.xzhang.boot.model.vo.question.QuestionVo;
 import cn.xzhang.boot.service.QuestionService;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.apache.commons.lang3.StringUtils;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.sort.SortBuilder;
+import org.elasticsearch.search.sort.SortBuilders;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
+import org.springframework.data.elasticsearch.core.SearchHit;
+import org.springframework.data.elasticsearch.core.SearchHits;
+import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
+import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -43,6 +56,9 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
 
     @Resource
     private QuestionBankQuestionMapper questionBankQuestionMapper;
+
+    @Resource
+    private ElasticsearchRestTemplate elasticsearchRestTemplate;
 
     /**
      * 添加新题目
@@ -229,6 +245,59 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         }).collect(Collectors.toList());
         return new PageResult<>(questionVos, pageResult.getTotal());
     }
+
+    @Override
+    public PageResult<QuestionVo> searchFromEs(UserQuestionPageReqDTO questionQueryRequest) {
+        // 获取参数
+        Long questionBankId = questionQueryRequest.getQuestionBankId();
+        // 注意，ES 的起始页为 0
+        int current = questionQueryRequest.getPageNo() - 1;
+        int pageSize = questionQueryRequest.getPageSize();
+        String title = questionQueryRequest.getTitle();
+
+        // 构造查询条件
+        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+        // 过滤
+        boolQueryBuilder.filter(QueryBuilders.termQuery("deleted", 0));
+        boolQueryBuilder.filter(QueryBuilders.termQuery("reviewStatus", 1));
+
+        if (questionBankId != null) {
+            boolQueryBuilder.filter(QueryBuilders.termQuery("questionBankId", questionBankId));
+        }
+        // 按关键词检索
+        if (StringUtils.isNotBlank(title)) {
+            boolQueryBuilder.should(QueryBuilders.matchQuery("title", title));
+            boolQueryBuilder.should(QueryBuilders.matchQuery("content", title));
+            boolQueryBuilder.should(QueryBuilders.matchQuery("answer", title));
+            boolQueryBuilder.minimumShouldMatch(1);
+        }
+        // 分页
+        PageRequest pageRequest = PageRequest.of(current, pageSize);
+        // 构造查询
+        NativeSearchQuery searchQuery = new NativeSearchQueryBuilder()
+                .withQuery(boolQueryBuilder)
+                .withPageable(pageRequest)
+                .build();
+        SearchHits<QuestionEsDTO> searchHits = elasticsearchRestTemplate.search(searchQuery, QuestionEsDTO.class);
+        // 复用 MySQL 的分页对象，封装返回结果
+        PageResult<QuestionVo> page = new PageResult<>();
+        page.setTotal(searchHits.getTotalHits());
+        List<QuestionVo> resourceList = new ArrayList<>();
+        if (searchHits.hasSearchHits()) {
+            List<SearchHit<QuestionEsDTO>> searchHitList = searchHits.getSearchHits();
+            for (SearchHit<QuestionEsDTO> questionEsDTOSearchHit : searchHitList) {
+                resourceList.add(getQuestionVO(QuestionEsDTO.dtoToObj(questionEsDTOSearchHit.getContent())));
+            }
+        }
+        page.setList(resourceList);
+        return page;
+    }
+
+    @Override
+    public List<Question> listAll() {
+        return questionMapper.selectAllList();
+    }
+
 
 }
 
