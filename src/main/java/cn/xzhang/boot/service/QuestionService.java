@@ -103,4 +103,10 @@ public interface QuestionService extends IService<Question> {
      * @return 所有数据
      */
     List<Question> listAll();
+
+    /**
+     * 批量删除题目
+     * @param idList 题目id列表
+     */
+    void batchDeleteQuestions(List<Long> idList);
 }

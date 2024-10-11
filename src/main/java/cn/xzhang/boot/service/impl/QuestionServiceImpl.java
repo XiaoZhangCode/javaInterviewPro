@@ -144,7 +144,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
     public PageResult<QuestionVo> getQuestionPage(QuestionPageReqDTO questionPageReqDTO) {
         Long questionBankId = questionPageReqDTO.getQuestionBankId();
         if (ObjectUtil.isNotEmpty(questionBankId)) {
-            List<Long> questionIds =  questionBankQuestionMapper.selectListByBankId(questionBankId);
+            List<Long> questionIds = questionBankQuestionMapper.selectListByBankId(questionBankId);
             if (CollectionUtil.isNotEmpty(questionIds)) {
                 questionPageReqDTO.setQuestionIdList(questionIds);
             } else {
@@ -224,11 +224,11 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
     public PageResult<QuestionVo> getUserQuestionPage(UserQuestionPageReqDTO reqDTO) {
         PageResult<Question> pageResult;
         if (ObjectUtil.isNotEmpty(reqDTO.getQuestionBankId())) {
-           List<Long> questionIds =  questionBankQuestionMapper.selectListByBankId(reqDTO.getQuestionBankId());
+            List<Long> questionIds = questionBankQuestionMapper.selectListByBankId(reqDTO.getQuestionBankId());
             if (CollectionUtil.isNotEmpty(questionIds)) {
                 pageResult = questionMapper.selectUserPageByBankId(reqDTO, questionIds);
             } else {
-               return new PageResult<>(new ArrayList<>(), 0L);
+                return new PageResult<>(new ArrayList<>(), 0L);
             }
         } else {
             pageResult = questionMapper.selectUserPage(reqDTO);
@@ -296,6 +296,24 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
     @Override
     public List<Question> listAll() {
         return questionMapper.selectAllList();
+    }
+
+    @Override
+    public void batchDeleteQuestions(List<Long> idList) {
+        if (CollectionUtil.isEmpty(idList)) {
+            throw exception(BAD_REQUEST_PARAMS_ERROR, "题目id不可为空");
+        }
+        questionMapper.deleteBatchIds(idList);
+        List<QuestionBankQuestion> questionBankQuestions = questionBankQuestionMapper.selectList(
+                Wrappers.lambdaQuery(QuestionBankQuestion.class)
+                        .select(QuestionBankQuestion::getId)
+                        .in(QuestionBankQuestion::getQuestionId, idList)
+        );
+        if (CollectionUtil.isEmpty(questionBankQuestions)) {
+            return;
+        }
+        List<Long> questionBankQuestionIds = questionBankQuestions.stream().map(QuestionBankQuestion::getId).collect(Collectors.toList());
+        questionBankQuestionMapper.deleteBatchIds(questionBankQuestionIds);
     }
 
 

@@ -4,15 +4,13 @@ import cn.dev33.satoken.annotation.SaCheckRole;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.xzhang.boot.common.pojo.CommonResult;
-import cn.xzhang.boot.common.pojo.PageParam;
 import cn.xzhang.boot.common.pojo.PageResult;
 import cn.xzhang.boot.constant.UserConstant;
 import cn.xzhang.boot.model.dto.question.*;
-import cn.xzhang.boot.model.dto.questionBank.QuestionBankBatchReviewReqDTO;
-import cn.xzhang.boot.model.dto.questionBank.QuestionBankReviewReqDTO;
+import cn.xzhang.boot.model.dto.questionBank.QuestionBankQuestionBatchRemoveReqDTO;
+import cn.xzhang.boot.model.dto.questionBank.QuestionBankQuestionBatchReqDTO;
 import cn.xzhang.boot.model.entity.Question;
 import cn.xzhang.boot.model.entity.User;
-import cn.xzhang.boot.model.enums.QuestionBankReviewStatusEnum;
 import cn.xzhang.boot.model.vo.question.QuestionSimpleVo;
 import cn.xzhang.boot.model.vo.question.QuestionVo;
 import cn.xzhang.boot.model.vo.questionBank.QuestionBankVo;
@@ -28,7 +26,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import javax.annotation.security.PermitAll;
 import javax.validation.Valid;
 
 import java.util.ArrayList;
@@ -238,6 +235,52 @@ public class QuestionController {
     public CommonResult<PageResult<QuestionVo>> searchQuestionVOByPage(@RequestBody UserQuestionPageReqDTO questionQueryRequest) {
         PageResult<QuestionVo> questionPage = questionService.searchFromEs(questionQueryRequest);
         return success(questionPage);
+    }
+
+
+    @PostMapping("/add/batch")
+    @Operation(summary = "批量向题库添加题目")
+    @SaCheckRole(UserConstant.ADMIN_ROLE)
+    public CommonResult<Boolean> batchAddQuestionsToBank(@RequestBody @Valid QuestionBankQuestionBatchReqDTO questionBatchReqDTO) {
+        // 参数校验
+        if(ObjectUtil.isEmpty(questionBatchReqDTO)){
+            return CommonResult.error("参数为空");
+        }
+        User user = userService.getLoginUser();
+        List<Long> questionIds = questionBatchReqDTO.getQuestionIds();
+        Long questionBankId = questionBatchReqDTO.getQuestionBankId();
+
+        questionBankQuestionService.batchAddQuestionsToBank(questionIds, questionBankId, user);
+        return success(true);
+    }
+
+    @PostMapping("/remove/batch")
+    @Operation(summary = "批量向题库移除题目")
+    @SaCheckRole(UserConstant.ADMIN_ROLE)
+    public CommonResult<Boolean> batchRemoveQuestionsFromBank(@RequestBody QuestionBankQuestionBatchRemoveReqDTO questionBatchRemoveReqDTO) {
+        // 参数校验
+        if(ObjectUtil.isEmpty(questionBatchRemoveReqDTO)){
+            return CommonResult.error("参数为空");
+        }
+        List<Long> questionIdList = questionBatchRemoveReqDTO.getQuestionIds();
+        Long questionBankId = questionBatchRemoveReqDTO.getQuestionBankId();
+        questionBankQuestionService.batchRemoveQuestionsFromBank(questionIdList, questionBankId);
+        return success(true);
+    }
+
+
+
+    @PostMapping("/delete/batch")
+    @Operation(summary = "批量删除题目")
+    @SaCheckRole(UserConstant.ADMIN_ROLE)
+    public CommonResult<Boolean> batchDeleteQuestionsFromBank(@RequestBody QuestionDeleteReqDTO questionDeleteReqDTO) {
+        // 参数校验
+        if(ObjectUtil.isEmpty(questionDeleteReqDTO)){
+            return CommonResult.error("参数为空");
+        }
+        List<Long> idList = questionDeleteReqDTO.getIdList();
+        questionService.batchDeleteQuestions(idList);
+        return success(true);
     }
 
 

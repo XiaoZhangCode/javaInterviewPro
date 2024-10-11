@@ -3,20 +3,23 @@ package cn.xzhang.boot.service.impl;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.xzhang.boot.common.exception.ServiceException;
-import cn.xzhang.boot.common.pojo.PageResult;
 import cn.xzhang.boot.mapper.QuestionBankMapper;
 import cn.xzhang.boot.mapper.QuestionBankQuestionMapper;
+import cn.xzhang.boot.mapper.QuestionMapper;
 import cn.xzhang.boot.model.dto.questionBankQuestion.QuestionBankQuestionAddReqDTO;
-import cn.xzhang.boot.model.dto.questionBankQuestion.QuestionBankQuestionPageReqDTO;
-import cn.xzhang.boot.model.dto.questionBankQuestion.QuestionBankQuestionUpdateReqDTO;
+import cn.xzhang.boot.model.entity.Question;
 import cn.xzhang.boot.model.entity.QuestionBank;
 import cn.xzhang.boot.model.entity.QuestionBankQuestion;
+import cn.xzhang.boot.model.entity.User;
 import cn.xzhang.boot.model.vo.questionBank.QuestionBankVo;
 import cn.xzhang.boot.model.vo.questionbankquestion.QuestionBankQuestionSimpleVo;
 import cn.xzhang.boot.model.vo.questionbankquestion.QuestionBankQuestionVo;
 import cn.xzhang.boot.service.QuestionBankQuestionService;
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -42,6 +45,8 @@ public class QuestionBankQuestionServiceImpl extends ServiceImpl<QuestionBankQue
     private QuestionBankQuestionMapper questionbankquestionMapper;
     @Autowired
     private QuestionBankMapper questionBankMapper;
+    @Autowired
+    private QuestionMapper questionMapper;
 
 
     /**
@@ -153,6 +158,74 @@ public class QuestionBankQuestionServiceImpl extends ServiceImpl<QuestionBankQue
             return questionbankquestionMapper.unbind(reqDTO);
         }
         return 0;
+    }
+
+    @Override
+    @Transactional(rollbackFor = ServiceException.class)
+    public void batchAddQuestionsToBank(List<Long> questionIdList, Long questionBankId, User loginUser) {
+        // 参数校验
+        // 检查题目 id 是否存在
+        List<Question> questionList = questionMapper.selectList(
+                Wrappers.lambdaQuery(Question.class)
+                        .select(Question::getId)
+                        .in(Question::getId, questionIdList)
+        );
+        // 合法的题目 id
+        List<Long> validQuestionIdList = questionList.stream()
+                .map(Question::getId)
+                .collect(Collectors.toList());
+        if (CollUtil.isEmpty(validQuestionIdList)) {
+            throw exception(BAD_REQUEST_PARAMS_ERROR, "题目列表不合法!");
+        }
+        // 检查题库 id 是否存在
+        QuestionBank questionBank = questionBankMapper.selectById(questionBankId);
+        if (ObjectUtil.isEmpty(questionBank)) {
+            throw exception(BAD_REQUEST_PARAMS_ERROR, "题库不存在!");
+        }
+        // 执行插入
+        for (Long questionId : validQuestionIdList) {
+            QuestionBankQuestion questionBankQuestion = new QuestionBankQuestion();
+            questionBankQuestion.setQuestionBankId(questionBankId);
+            questionBankQuestion.setQuestionId(questionId);
+            questionBankQuestion.setUserId(loginUser.getId());
+            boolean result = this.save(questionBankQuestion);
+            if (!result) {
+                throw exception(CUSTOMER_INTERNAL_SERVER_ERROR, "向题库添加题目失败");
+            }
+        }
+    }
+
+    @Override
+    public void batchRemoveQuestionsFromBank(List<Long> questionIdList, Long questionBankId) {
+        // 检查题目 id 是否存在
+        List<Question> questionList = questionMapper.selectList(
+                Wrappers.lambdaQuery(Question.class)
+                        .select(Question::getId)
+                        .in(Question::getId, questionIdList)
+        );
+        // 合法的题目 id
+        List<Long> validQuestionIdList = questionList.stream()
+                .map(Question::getId)
+                .collect(Collectors.toList());
+        if (CollUtil.isEmpty(validQuestionIdList)) {
+            throw exception(BAD_REQUEST_PARAMS_ERROR, "题目列表不合法!");
+        }
+        // 检查题库 id 是否存在
+        QuestionBank questionBank = questionBankMapper.selectById(questionBankId);
+        if (ObjectUtil.isEmpty(questionBank)) {
+            throw exception(BAD_REQUEST_PARAMS_ERROR, "题库不存在!");
+        }
+        // 执行插入
+        for (Long questionId : validQuestionIdList) {
+            Wrapper<QuestionBankQuestion> wrapper = Wrappers.lambdaQuery(QuestionBankQuestion.class)
+                    .eq(QuestionBankQuestion::getQuestionBankId, questionBankId)
+                    .eq(QuestionBankQuestion::getQuestionId, questionId);
+            boolean result = this.remove(wrapper);
+            if (!result) {
+                throw exception(CUSTOMER_INTERNAL_SERVER_ERROR, "向题库移除题目失败");
+            }
+        }
+
     }
 
 }

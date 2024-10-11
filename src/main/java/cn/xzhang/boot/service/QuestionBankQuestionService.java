@@ -5,6 +5,7 @@ import cn.xzhang.boot.model.dto.questionBankQuestion.QuestionBankQuestionAddReqD
 import cn.xzhang.boot.model.dto.questionBankQuestion.QuestionBankQuestionPageReqDTO;
 import cn.xzhang.boot.model.dto.questionBankQuestion.QuestionBankQuestionUpdateReqDTO;
 import cn.xzhang.boot.model.entity.QuestionBankQuestion;
+import cn.xzhang.boot.model.entity.User;
 import cn.xzhang.boot.model.vo.questionBank.QuestionBankVo;
 import cn.xzhang.boot.model.vo.questionbankquestion.QuestionBankQuestionSimpleVo;
 import cn.xzhang.boot.model.vo.questionbankquestion.QuestionBankQuestionVo;
@@ -71,4 +72,19 @@ public interface QuestionBankQuestionService extends IService<QuestionBankQuesti
      * @return 返回解绑操作的结果，true表示解绑成功，false表示解绑失败。
      */
     long unbindQuestionBankQuestion(QuestionBankQuestionAddReqDTO questionBankQuestionReqDTO);
+
+    /**
+     * 批量添加题目到题库
+     * @param questionIds 题目id列表
+     * @param questionBankId 题库id
+     * @param user 登录用户
+     */
+    void batchAddQuestionsToBank(List<Long> questionIds, Long questionBankId, User user);
+
+    /**
+     * 批量移除题目到题库
+     * @param questionIdList 题目id列表
+     * @param questionBankId 题库id
+     */
+    void batchRemoveQuestionsFromBank(List<Long> questionIdList, Long questionBankId);
 }
