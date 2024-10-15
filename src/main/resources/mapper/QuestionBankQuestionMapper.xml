@@ -2,9 +2,9 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="cn.xzhang.boot.model.entity.QuestionBankQuestion">
+<mapper namespace="cn.xzhang.boot.mapper.QuestionBankQuestionMapper">
 
-    <resultMap id="BaseResultMap" type="cn.xzhang.boot.model.entity.QuestionBankQuestion">
+        <resultMap id="BaseResultMap" type="cn.xzhang.boot.model.entity.QuestionBankQuestion">
                 <id property="id" column="id" jdbcType="BIGINT"/>
                     <result property="questionBankId" column="questionBankId" jdbcType="BIGINT"/>
                     <result property="questionId" column="questionId" jdbcType="BIGINT"/>
@@ -23,4 +23,43 @@
             createTime,
             updateTime
     </sql>
+
+    <delete id="myDeleteBatchIds">
+        delete from question_bank_question where id IN (
+        <foreach collection="ids" item="id" separator=",">
+            #{id}
+        </foreach>
+        )
+    </delete>
+
+    <select id="selectListByQuestionIds" resultType="java.lang.Long">
+        select `id` from question_bank_question where questionId in
+        <foreach collection="questionIds" open="(" close=")" item="questionId" separator=",">
+            #{questionId}
+        </foreach>
+
+    </select>
+    <select id="selectListByBankIdsAndQuestionIds"
+            resultType="cn.xzhang.boot.model.entity.QuestionBankQuestion">
+        select id,questionId,questionBankId from question_bank_question where questionBankId IN
+        <foreach collection="questionBankIds" item="bankId"
+                 open="(" close=")" separator=",">
+            #{bankId}
+        </foreach>
+        and questionId IN
+        <foreach collection="questionIds" open="(" close=")" item="questionId" separator=",">
+            #{questionId}
+        </foreach>
+    </select>
+
+    <insert id="insertMyBatch">
+        insert into question_bank_question(questionBankId,questionId,questionOrder,userId)
+        values
+        <foreach collection="bankQuestions" item="item" separator=",">
+            (#{item.questionBankId},#{item.questionId},#{item.questionOrder},#{item.userId})
+        </foreach>
+    </insert>
+
+
+
 </mapper>

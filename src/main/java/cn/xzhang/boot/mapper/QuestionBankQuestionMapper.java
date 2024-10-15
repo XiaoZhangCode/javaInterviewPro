@@ -6,17 +6,19 @@ import cn.xzhang.boot.model.dto.questionBankQuestion.QuestionBankQuestionAddReqD
 import cn.xzhang.boot.model.dto.questionBankQuestion.QuestionBankQuestionPageReqDTO;
 import cn.xzhang.boot.model.entity.QuestionBankQuestion;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
  * @author XiaoZhangCode
  * @author <a href="https://github.com/XiaoZhangCode">XiaoZhangCode</a>
- * @description 针对表【questionbankquestion(题库题目关联表)】的数据库操作Mapper
+ * @description 针对表【institutionalisation(题库题目关联表)】的数据库操作Mapper
  */
 public interface QuestionBankQuestionMapper extends BaseMapperPlus<QuestionBankQuestion> {
 
@@ -37,10 +39,19 @@ public interface QuestionBankQuestionMapper extends BaseMapperPlus<QuestionBankQ
     List<Long> selectListByQuestionId(@Param("id") Long id);
 
     @Insert("insert into question_bank_question(questionBankId, questionId, questionOrder, userId) values(#{questionBankQuestion.questionBankId}, #{questionBankQuestion.questionId}, #{questionBankQuestion.questionOrder}, #{questionBankQuestion.userId})")
-    boolean saveBind(@Param("questionBankQuestion")QuestionBankQuestion questionBankQuestion);
+    boolean saveBind(@Param("questionBankQuestion") QuestionBankQuestion questionBankQuestion);
 
     @Delete("delete from question_bank_question where questionBankId = #{questionBankId} and questionId = #{questionId}")
     long unbind(QuestionBankQuestionAddReqDTO reqDTO);
+
+    void myDeleteBatchIds(@Param("ids") Collection<Long> ids);
+
+    List<Long> selectListByQuestionIds(@Param("questionIds") List<Long> questionIds);
+
+    List<QuestionBankQuestion> selectListByBankIdsAndQuestionIds(@Param("questionBankIds") List<Long> questionBankIds,@Param("questionIds") List<Long> questionIds);
+
+
+    void insertMyBatch(@Param("bankQuestions") List<QuestionBankQuestion> bankQuestions);
 }
 
 

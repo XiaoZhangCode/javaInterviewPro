@@ -20,8 +20,8 @@ public class QuestionBankQuestionBatchRemoveReqDTO {
     @NotEmpty(message = "题目列表不能为空")
     private List<Long> questionIds;
 
-    @Schema(description = "题库id")
+    @Schema(description = "题库id列表")
     @NotNull(message = "题库不能为空")
-    private Long questionBankId;
+    private List<Long> questionBankIds;
 
 }

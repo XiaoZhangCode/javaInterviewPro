@@ -26,8 +26,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static cn.xzhang.boot.common.exception.enums.GlobalErrorCodeConstants.*;
@@ -47,6 +49,8 @@ public class QuestionBankQuestionServiceImpl extends ServiceImpl<QuestionBankQue
     private QuestionBankMapper questionBankMapper;
     @Autowired
     private QuestionMapper questionMapper;
+    @Autowired
+    private QuestionBankQuestionMapper questionBankQuestionMapper;
 
 
     /**
@@ -162,7 +166,7 @@ public class QuestionBankQuestionServiceImpl extends ServiceImpl<QuestionBankQue
 
     @Override
     @Transactional(rollbackFor = ServiceException.class)
-    public void batchAddQuestionsToBank(List<Long> questionIdList, Long questionBankId, User loginUser) {
+    public void batchAddQuestionsToBank(List<Long> questionIdList, List<Long> questionBankIds, User loginUser) {
         // 参数校验
         // 检查题目 id 是否存在
         List<Question> questionList = questionMapper.selectList(
@@ -178,25 +182,41 @@ public class QuestionBankQuestionServiceImpl extends ServiceImpl<QuestionBankQue
             throw exception(BAD_REQUEST_PARAMS_ERROR, "题目列表不合法!");
         }
         // 检查题库 id 是否存在
-        QuestionBank questionBank = questionBankMapper.selectById(questionBankId);
-        if (ObjectUtil.isEmpty(questionBank)) {
+        List<Long> queryQuestionBankIds = questionBankMapper.selectObjs(
+                Wrappers.lambdaQuery(QuestionBank.class)
+                        .select(QuestionBank::getId)
+                        .in(QuestionBank::getId, questionBankIds)
+        );
+        if (ObjectUtil.isEmpty(queryQuestionBankIds)) {
             throw exception(BAD_REQUEST_PARAMS_ERROR, "题库不存在!");
         }
+        // 查询出已经存在的题目
+        List<QuestionBankQuestion> existQuestionBankQuestions = questionBankQuestionMapper.selectListByBankIdsAndQuestionIds(queryQuestionBankIds, validQuestionIdList);
+        // 将上面的列表转成 map，key为 questionId-questionBankId
+        Map<String, QuestionBankQuestion> existQuestionBankQuestionMap = existQuestionBankQuestions.stream().collect(Collectors.toMap(item -> item.getQuestionId() + "-" + item.getQuestionBankId(), item -> item));
         // 执行插入
+        List<QuestionBankQuestion> bankQuestions = new ArrayList<>();
         for (Long questionId : validQuestionIdList) {
-            QuestionBankQuestion questionBankQuestion = new QuestionBankQuestion();
-            questionBankQuestion.setQuestionBankId(questionBankId);
-            questionBankQuestion.setQuestionId(questionId);
-            questionBankQuestion.setUserId(loginUser.getId());
-            boolean result = this.save(questionBankQuestion);
-            if (!result) {
-                throw exception(CUSTOMER_INTERNAL_SERVER_ERROR, "向题库添加题目失败");
+            for (Long questionBankId : queryQuestionBankIds) {
+                if (ObjectUtil.isNotNull(existQuestionBankQuestionMap) && existQuestionBankQuestionMap.containsKey(questionId + "-" + questionBankId)) {
+                    continue;
+                }
+                QuestionBankQuestion questionBankQuestion = new QuestionBankQuestion();
+                questionBankQuestion.setQuestionBankId(questionBankId);
+                questionBankQuestion.setQuestionId(questionId);
+                questionBankQuestion.setUserId(loginUser.getId());
+                questionBankQuestion.setQuestionOrder(0);
+                bankQuestions.add(questionBankQuestion);
             }
         }
+        if (CollUtil.isEmpty(bankQuestions)) {
+            return;
+        }
+        questionBankQuestionMapper.insertMyBatch(bankQuestions);
     }
 
     @Override
-    public void batchRemoveQuestionsFromBank(List<Long> questionIdList, Long questionBankId) {
+    public void batchRemoveQuestionsFromBank(List<Long> questionIdList, List<Long> questionBankIds) {
         // 检查题目 id 是否存在
         List<Question> questionList = questionMapper.selectList(
                 Wrappers.lambdaQuery(Question.class)
@@ -211,21 +231,24 @@ public class QuestionBankQuestionServiceImpl extends ServiceImpl<QuestionBankQue
             throw exception(BAD_REQUEST_PARAMS_ERROR, "题目列表不合法!");
         }
         // 检查题库 id 是否存在
-        QuestionBank questionBank = questionBankMapper.selectById(questionBankId);
-        if (ObjectUtil.isEmpty(questionBank)) {
+        List<Long> queryQuestionBankIds = questionBankMapper.selectObjs(
+                Wrappers.lambdaQuery(QuestionBank.class)
+                        .select(QuestionBank::getId)
+                        .in(QuestionBank::getId, questionBankIds)
+        );
+        if (ObjectUtil.isEmpty(queryQuestionBankIds)) {
             throw exception(BAD_REQUEST_PARAMS_ERROR, "题库不存在!");
         }
-        // 执行插入
-        for (Long questionId : validQuestionIdList) {
-            Wrapper<QuestionBankQuestion> wrapper = Wrappers.lambdaQuery(QuestionBankQuestion.class)
-                    .eq(QuestionBankQuestion::getQuestionBankId, questionBankId)
-                    .eq(QuestionBankQuestion::getQuestionId, questionId);
-            boolean result = this.remove(wrapper);
-            if (!result) {
-                throw exception(CUSTOMER_INTERNAL_SERVER_ERROR, "向题库移除题目失败");
-            }
+        // 查询出已经存在的题目
+        List<QuestionBankQuestion> existQuestionBankQuestions = questionBankQuestionMapper.selectListByBankIdsAndQuestionIds(queryQuestionBankIds, validQuestionIdList);
+        if (CollUtil.isEmpty(existQuestionBankQuestions)) {
+            return;
         }
-
+        List<Long> removeIds = existQuestionBankQuestions.stream().map(QuestionBankQuestion::getId).collect(Collectors.toList());
+        if(CollUtil.isEmpty(removeIds)){
+            return;
+        }
+        questionBankQuestionMapper.myDeleteBatchIds(removeIds);
     }
 
 }

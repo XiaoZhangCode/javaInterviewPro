@@ -299,21 +299,16 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
     }
 
     @Override
-    public void batchDeleteQuestions(List<Long> idList) {
-        if (CollectionUtil.isEmpty(idList)) {
+    public void batchDeleteQuestions(List<Long> questionIds) {
+        if (CollectionUtil.isEmpty(questionIds)) {
             throw exception(BAD_REQUEST_PARAMS_ERROR, "题目id不可为空");
         }
-        questionMapper.deleteBatchIds(idList);
-        List<QuestionBankQuestion> questionBankQuestions = questionBankQuestionMapper.selectList(
-                Wrappers.lambdaQuery(QuestionBankQuestion.class)
-                        .select(QuestionBankQuestion::getId)
-                        .in(QuestionBankQuestion::getQuestionId, idList)
-        );
+        questionMapper.deleteBatchIds(questionIds);
+        List<Long> questionBankQuestions = questionBankQuestionMapper.selectListByQuestionIds(questionIds);
         if (CollectionUtil.isEmpty(questionBankQuestions)) {
             return;
         }
-        List<Long> questionBankQuestionIds = questionBankQuestions.stream().map(QuestionBankQuestion::getId).collect(Collectors.toList());
-        questionBankQuestionMapper.deleteBatchIds(questionBankQuestionIds);
+        questionBankQuestionMapper.myDeleteBatchIds(questionBankQuestions);
     }
 
 

@@ -248,8 +248,7 @@ public class QuestionController {
         }
         User user = userService.getLoginUser();
         List<Long> questionIds = questionBatchReqDTO.getQuestionIds();
-        Long questionBankId = questionBatchReqDTO.getQuestionBankId();
-
+        List<Long> questionBankId = questionBatchReqDTO.getQuestionBankIds();
         questionBankQuestionService.batchAddQuestionsToBank(questionIds, questionBankId, user);
         return success(true);
     }
@@ -263,8 +262,8 @@ public class QuestionController {
             return CommonResult.error("参数为空");
         }
         List<Long> questionIdList = questionBatchRemoveReqDTO.getQuestionIds();
-        Long questionBankId = questionBatchRemoveReqDTO.getQuestionBankId();
-        questionBankQuestionService.batchRemoveQuestionsFromBank(questionIdList, questionBankId);
+        List<Long> questionBankIds = questionBatchRemoveReqDTO.getQuestionBankIds();
+        questionBankQuestionService.batchRemoveQuestionsFromBank(questionIdList, questionBankIds);
         return success(true);
     }
 
@@ -273,7 +272,7 @@ public class QuestionController {
     @PostMapping("/delete/batch")
     @Operation(summary = "批量删除题目")
     @SaCheckRole(UserConstant.ADMIN_ROLE)
-    public CommonResult<Boolean> batchDeleteQuestionsFromBank(@RequestBody QuestionDeleteReqDTO questionDeleteReqDTO) {
+    public CommonResult<Boolean> batchDeleteQuestions(@RequestBody QuestionDeleteReqDTO questionDeleteReqDTO) {
         // 参数校验
         if(ObjectUtil.isEmpty(questionDeleteReqDTO)){
             return CommonResult.error("参数为空");

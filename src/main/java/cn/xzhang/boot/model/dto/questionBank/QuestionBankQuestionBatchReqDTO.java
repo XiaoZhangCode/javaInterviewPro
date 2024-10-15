@@ -22,6 +22,6 @@ public class QuestionBankQuestionBatchReqDTO {
 
     @Schema(description = "题库id")
     @NotNull(message = "题库不能为空")
-    private Long questionBankId;
+    private List<Long> questionBankIds;
 
 }
