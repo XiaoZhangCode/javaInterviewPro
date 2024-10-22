@@ -3,6 +3,7 @@ package cn.xzhang.boot.controller;
 import cn.dev33.satoken.annotation.SaCheckRole;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
+import cn.xzhang.boot.aspect.CacheHotKey;
 import cn.xzhang.boot.common.pojo.CommonResult;
 import cn.xzhang.boot.common.pojo.PageParam;
 import cn.xzhang.boot.common.pojo.PageResult;
@@ -19,6 +20,7 @@ import cn.xzhang.boot.service.QuestionBankQuestionService;
 import cn.xzhang.boot.service.QuestionBankService;
 import cn.xzhang.boot.service.QuestionService;
 import cn.xzhang.boot.service.UserService;
+import com.jd.platform.hotkey.client.callback.JdHotKeyStore;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -36,6 +38,7 @@ import java.util.stream.Collectors;
 
 import static cn.xzhang.boot.common.exception.enums.GlobalErrorCodeConstants.BAD_REQUEST_PARAMS;
 import static cn.xzhang.boot.common.exception.enums.GlobalErrorCodeConstants.TOO_MANY_REQUESTS;
+import static cn.xzhang.boot.constant.RedisConstant.HOT_BANK_REDIS_KEY_PREFIX;
 
 /**
  * 题库表管理
@@ -110,13 +113,15 @@ public class QuestionBankController {
     @GetMapping("/get")
     @Operation(summary = "获取题库简要表")
     @Parameter(name = "id", description = "题库表ID", required = true)
+    @CacheHotKey(keyPrefix = HOT_BANK_REDIS_KEY_PREFIX)
     public CommonResult<QuestionBankVo> getQuestionBank(@RequestParam("id") Long id) {
         // 检查传入的ID是否为空
         if (id == null) {
             return CommonResult.error(BAD_REQUEST_PARAMS);
         }
+        QuestionBankVo questionBankVO = questionbankService.getQuestionBankVO(questionbankService.getById(id));
         // 调用服务层方法，获取信息，并返回结果
-        return CommonResult.success(questionbankService.getQuestionBankVO(questionbankService.getById(id)));
+        return CommonResult.success(questionBankVO);
     }
 
     @GetMapping("/get/vo")

@@ -169,24 +169,12 @@ public class QuestionBankQuestionServiceImpl extends ServiceImpl<QuestionBankQue
     public void batchAddQuestionsToBank(List<Long> questionIdList, List<Long> questionBankIds, User loginUser) {
         // 参数校验
         // 检查题目 id 是否存在
-        List<Question> questionList = questionMapper.selectList(
-                Wrappers.lambdaQuery(Question.class)
-                        .select(Question::getId)
-                        .in(Question::getId, questionIdList)
-        );
-        // 合法的题目 id
-        List<Long> validQuestionIdList = questionList.stream()
-                .map(Question::getId)
-                .collect(Collectors.toList());
+        List<Long> validQuestionIdList = getQuestionIdList(questionIdList);
         if (CollUtil.isEmpty(validQuestionIdList)) {
             throw exception(BAD_REQUEST_PARAMS_ERROR, "题目列表不合法!");
         }
         // 检查题库 id 是否存在
-        List<Long> queryQuestionBankIds = questionBankMapper.selectObjs(
-                Wrappers.lambdaQuery(QuestionBank.class)
-                        .select(QuestionBank::getId)
-                        .in(QuestionBank::getId, questionBankIds)
-        );
+        List<Long> queryQuestionBankIds = getQueryQuestionBankIds(questionBankIds);
         if (ObjectUtil.isEmpty(queryQuestionBankIds)) {
             throw exception(BAD_REQUEST_PARAMS_ERROR, "题库不存在!");
         }
@@ -215,27 +203,31 @@ public class QuestionBankQuestionServiceImpl extends ServiceImpl<QuestionBankQue
         questionBankQuestionMapper.insertMyBatch(bankQuestions);
     }
 
-    @Override
-    public void batchRemoveQuestionsFromBank(List<Long> questionIdList, List<Long> questionBankIds) {
-        // 检查题目 id 是否存在
-        List<Question> questionList = questionMapper.selectList(
-                Wrappers.lambdaQuery(Question.class)
-                        .select(Question::getId)
-                        .in(Question::getId, questionIdList)
-        );
-        // 合法的题目 id
-        List<Long> validQuestionIdList = questionList.stream()
-                .map(Question::getId)
-                .collect(Collectors.toList());
-        if (CollUtil.isEmpty(validQuestionIdList)) {
-            throw exception(BAD_REQUEST_PARAMS_ERROR, "题目列表不合法!");
-        }
-        // 检查题库 id 是否存在
-        List<Long> queryQuestionBankIds = questionBankMapper.selectObjs(
+    private List<Long> getQueryQuestionBankIds(List<Long> questionBankIds) {
+        return questionBankMapper.selectObjs(
                 Wrappers.lambdaQuery(QuestionBank.class)
                         .select(QuestionBank::getId)
                         .in(QuestionBank::getId, questionBankIds)
         );
+    }
+    private List<Long> getQuestionIdList(List<Long> questionIdList) {
+        return questionMapper.selectObjs(
+                Wrappers.lambdaQuery(Question.class)
+                        .select(Question::getId)
+                        .in(Question::getId, questionIdList)
+        );
+    }
+    
+
+    @Override
+    public void batchRemoveQuestionsFromBank(List<Long> questionIdList, List<Long> questionBankIds) {
+        // 检查题目 id 是否存在
+        List<Long> validQuestionIdList = getQuestionIdList(questionIdList);
+        if (CollUtil.isEmpty(validQuestionIdList)) {
+            throw exception(BAD_REQUEST_PARAMS_ERROR, "题目列表不合法!");
+        }
+        // 检查题库 id 是否存在
+        List<Long> queryQuestionBankIds = getQueryQuestionBankIds(questionBankIds);
         if (ObjectUtil.isEmpty(queryQuestionBankIds)) {
             throw exception(BAD_REQUEST_PARAMS_ERROR, "题库不存在!");
         }
@@ -250,6 +242,8 @@ public class QuestionBankQuestionServiceImpl extends ServiceImpl<QuestionBankQue
         }
         questionBankQuestionMapper.myDeleteBatchIds(removeIds);
     }
+
+
 
 }
 

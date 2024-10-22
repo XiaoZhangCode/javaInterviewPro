@@ -13,6 +13,11 @@ public interface RedisConstant {
     String USER_SIGN_IN_REDIS_KEY_PREFIX = "user:signins";
 
     /**
+     * 热门题库前缀
+     */
+    String HOT_BANK_REDIS_KEY_PREFIX = "bank_detail_";
+
+    /**
      * 获取用户签到记录的 Redis Key
      * @param year 年份
      * @param userId 用户 id
