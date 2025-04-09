@@ -48,6 +48,7 @@ public interface GlobalErrorCodeConstants {
     ErrorCode UPDATE_FAIL = new ErrorCode(4223, "更新失败");
     ErrorCode DELETE_FAIL = new ErrorCode(4224, "删除失败");
     ErrorCode QUESTION_BANK_NOT_EXISTS = new ErrorCode(4225, "题库不存在");
+    ErrorCode PASSWORD_ERROR = new ErrorCode(4226, "密码错误");
 
     //
 

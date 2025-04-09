@@ -123,9 +123,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
         // 对密码进行加密并验证用户是否存在
         String encryptPassword = DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes());
-        User user = this.baseMapper.selectOne(new LambdaQueryWrapper<User>().eq(User::getUserAccount, userAccount).eq(User::getUserPassword, encryptPassword));
+        User user = this.baseMapper.selectOne(new LambdaQueryWrapper<User>().eq(User::getUserAccount, userAccount));
         if (user == null) {
             throw exception(USER_NOT_EXIST);
+        }
+        if (!user.getUserPassword().equals(encryptPassword)) {
+            throw exception(PASSWORD_ERROR);
         }
         if (!UserStatusEnum.isNormal(user.getUserStatus())) {
             throw exception(USER_NOT_NORMAL);
