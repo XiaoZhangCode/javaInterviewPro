@@ -5,27 +5,32 @@ create database if not exists java_inter_view_pro;
 use java_inter_view_pro;
 
 
+SET NAMES utf8mb4;
+SET FOREIGN_KEY_CHECKS = 0;
+
 -- ----------------------------
 -- Table structure for comment
 -- ----------------------------
 DROP TABLE IF EXISTS `comment`;
 CREATE TABLE `comment`
 (
-    `id`         bigint(20)                                            NOT NULL AUTO_INCREMENT COMMENT '评论id',
-    `userId`     bigint(20)                                            NOT NULL COMMENT '评论用户id',
-    `questionId` bigint(20)                                            NOT NULL COMMENT '题目id',
-    `content`    text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '评论内容',
-    `parentId`   bigint(20)                                            NULL     DEFAULT NULL COMMENT '父评论id，用于回复功能',
-    `likeNum`    int(11)                                               NOT NULL DEFAULT 0 COMMENT '点赞数',
-    `createTime` datetime(0)                                           NOT NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '创建时间',
-    `updateTime` datetime(0)                                           NOT NULL DEFAULT CURRENT_TIMESTAMP(0) ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '更新时间',
-    `isDelete`   tinyint(4)                                            NOT NULL DEFAULT 0 COMMENT '是否删除',
+    `id`         bigint(20)                                                   NOT NULL AUTO_INCREMENT COMMENT '评论id',
+    `userId`     bigint(20)                                                   NOT NULL COMMENT '评论用户id',
+    `questionId` bigint(20)                                                   NOT NULL COMMENT '题目id',
+    `content`    text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci        NOT NULL COMMENT '评论内容',
+    `parentId`   bigint(20)                                                   NULL     DEFAULT NULL COMMENT '父评论id，用于回复功能',
+    `likeNum`    int(11)                                                      NOT NULL DEFAULT 0 COMMENT '点赞数',
+    `creator`    varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL     DEFAULT '' COMMENT '创建者',
+    `createTime` datetime(0)                                                  NOT NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '创建时间',
+    `updater`    varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL     DEFAULT '' COMMENT '更新者',
+    `updateTime` datetime(0)                                                  NOT NULL DEFAULT CURRENT_TIMESTAMP(0) ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '更新时间',
+    `deleted`    bit(1)                                                       NOT NULL DEFAULT b'0' COMMENT '是否删除',
     PRIMARY KEY (`id`) USING BTREE,
     INDEX `idx_questionId` (`questionId`) USING BTREE,
     INDEX `idx_userId` (`userId`) USING BTREE,
     INDEX `idx_parentId` (`parentId`) USING BTREE
 ) ENGINE = InnoDB
-  AUTO_INCREMENT = 1
+  AUTO_INCREMENT = 1910000237802332162
   CHARACTER SET = utf8mb4
   COLLATE = utf8mb4_unicode_ci COMMENT = '评论表'
   ROW_FORMAT = Dynamic;
@@ -36,18 +41,19 @@ CREATE TABLE `comment`
 DROP TABLE IF EXISTS `favourite`;
 CREATE TABLE `favourite`
 (
-    `id`         bigint(20)  NOT NULL AUTO_INCREMENT COMMENT '收藏id',
-    `userId`     bigint(20)  NOT NULL COMMENT '用户id',
-    `questionId` bigint(20)  NOT NULL COMMENT '题目id',
-    `createTime` datetime(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '创建时间',
-    `updateTime` datetime(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0) ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '更新时间',
-    `isDelete`   tinyint(4)  NOT NULL DEFAULT 0 COMMENT '是否删除',
+    `id`         bigint(20)                                                   NOT NULL AUTO_INCREMENT COMMENT '收藏id',
+    `userId`     bigint(20)                                                   NOT NULL COMMENT '用户id',
+    `questionId` bigint(20)                                                   NOT NULL COMMENT '题目id',
+    `creator`    varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL     DEFAULT '' COMMENT '创建者',
+    `createTime` datetime(0)                                                  NOT NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '创建时间',
+    `updater`    varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL     DEFAULT '' COMMENT '更新者',
+    `updateTime` datetime(0)                                                  NOT NULL DEFAULT CURRENT_TIMESTAMP(0) ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '更新时间',
+    `deleted`    bit(1)                                                       NOT NULL DEFAULT b'0' COMMENT '是否删除',
     PRIMARY KEY (`id`) USING BTREE,
-    UNIQUE INDEX `uk_user_question` (`userId`, `questionId`) USING BTREE,
     INDEX `idx_questionId` (`questionId`) USING BTREE,
     INDEX `idx_userId` (`userId`) USING BTREE
 ) ENGINE = InnoDB
-  AUTO_INCREMENT = 1
+  AUTO_INCREMENT = 1910000301165682690
   CHARACTER SET = utf8mb4
   COLLATE = utf8mb4_unicode_ci COMMENT = '收藏表'
   ROW_FORMAT = Dynamic;
@@ -142,19 +148,20 @@ CREATE TABLE `question_bank_question`
 DROP TABLE IF EXISTS `thumb`;
 CREATE TABLE `thumb`
 (
-    `id`         bigint(20)  NOT NULL AUTO_INCREMENT COMMENT '点赞id',
-    `userId`     bigint(20)  NOT NULL COMMENT '用户id',
-    `targetId`   bigint(20)  NOT NULL COMMENT '目标id（题目id或评论id）',
-    `targetType` tinyint(4)  NOT NULL COMMENT '目标类型：0-题目，1-评论',
-    `createTime` datetime(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '创建时间',
-    `updateTime` datetime(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0) ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '更新时间',
-    `isDelete`   tinyint(4)  NOT NULL DEFAULT 0 COMMENT '是否删除',
+    `id`         bigint(20)                                                   NOT NULL AUTO_INCREMENT COMMENT '点赞id',
+    `userId`     bigint(20)                                                   NOT NULL COMMENT '用户id',
+    `targetId`   bigint(20)                                                   NOT NULL COMMENT '目标id（题目id或评论id）',
+    `targetType` tinyint(4)                                                   NOT NULL COMMENT '目标类型：0-题目，1-评论',
+    `creator`    varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL     DEFAULT '' COMMENT '创建者',
+    `createTime` datetime(0)                                                  NOT NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '创建时间',
+    `updater`    varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL     DEFAULT '' COMMENT '更新者',
+    `updateTime` datetime(0)                                                  NOT NULL DEFAULT CURRENT_TIMESTAMP(0) ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '更新时间',
+    `deleted`    bit(1)                                                       NOT NULL DEFAULT b'0' COMMENT '是否删除',
     PRIMARY KEY (`id`) USING BTREE,
-    UNIQUE INDEX `uk_user_target` (`userId`, `targetId`, `targetType`) USING BTREE,
     INDEX `idx_targetId` (`targetId`) USING BTREE,
     INDEX `idx_userId` (`userId`) USING BTREE
 ) ENGINE = InnoDB
-  AUTO_INCREMENT = 1
+  AUTO_INCREMENT = 1910000696143290371
   CHARACTER SET = utf8mb4
   COLLATE = utf8mb4_unicode_ci COMMENT = '点赞表'
   ROW_FORMAT = Dynamic;
@@ -193,4 +200,5 @@ CREATE TABLE `user`
   COLLATE = utf8mb4_unicode_ci COMMENT = '用户表'
   ROW_FORMAT = Dynamic;
 
+SET FOREIGN_KEY_CHECKS = 1;
 
