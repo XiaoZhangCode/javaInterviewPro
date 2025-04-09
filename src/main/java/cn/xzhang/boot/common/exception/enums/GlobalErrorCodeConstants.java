@@ -50,7 +50,9 @@ public interface GlobalErrorCodeConstants {
     ErrorCode QUESTION_BANK_NOT_EXISTS = new ErrorCode(4225, "题库不存在");
     ErrorCode PASSWORD_ERROR = new ErrorCode(4226, "密码错误");
 
-    //
+    ErrorCode USER_IS_LIKED = new ErrorCode(4227,"您已点赞!无需重复点赞");
+    ErrorCode LIKE_ERROR = new ErrorCode(4228,"点赞失败!");
+    ErrorCode ALREADY_FAVOURITE = new ErrorCode(4229,"您已收藏!无需重复收藏");
 
 
     /**

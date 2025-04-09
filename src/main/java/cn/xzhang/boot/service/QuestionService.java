@@ -109,4 +109,13 @@ public interface QuestionService extends IService<Question> {
      * @param idList 题目id列表
      */
     void batchDeleteQuestions(List<Long> idList);
+
+    /**
+     * 更新题目收藏数
+     * @param questionId 题目ID
+     * @param type true + false -
+     */
+    void updateQuestionFavoriteCount(Long questionId, boolean type);
+
+    void updateViewNum(Long id);
 }

@@ -18,9 +18,9 @@ public class Generator {
         // 生成文件的包名
         String basePackage = "cn.xzhang.boot";
         // 文件头描述
-        String description = "题库题目关联";
+        String description = "点赞表";
         // 实体类的表名 大写
-        String tableName = "QuestionBankQuestion";
+        String tableName = "Thumb";
         // 生成的文件目录
         String path = "src/main/java/generated";
 

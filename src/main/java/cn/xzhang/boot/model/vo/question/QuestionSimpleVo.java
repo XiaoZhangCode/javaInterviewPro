@@ -47,5 +47,13 @@ public class QuestionSimpleVo implements Serializable {
     @Schema(description = "收藏数")
     private Integer favourNum;
 
+    // ---------------  扩展 -------------
+
+    @Schema(description = "当前用户的点赞状态")
+    private Boolean thumbStatus = false;
+
+    @Schema(description = "当前用户的收藏状态")
+    private Boolean favourStatus = false;
+
 
 }

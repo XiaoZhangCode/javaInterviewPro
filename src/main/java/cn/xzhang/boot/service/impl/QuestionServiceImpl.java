@@ -11,12 +11,15 @@ import cn.xzhang.boot.common.exception.ServiceException;
 import cn.xzhang.boot.common.pojo.PageResult;
 import cn.xzhang.boot.mapper.QuestionBankQuestionMapper;
 import cn.xzhang.boot.mapper.QuestionMapper;
+import cn.xzhang.boot.mapper.ThumbMapper;
 import cn.xzhang.boot.model.dto.question.*;
-import cn.xzhang.boot.model.entity.Question;
-import cn.xzhang.boot.model.entity.QuestionBankQuestion;
+import cn.xzhang.boot.model.entity.*;
 import cn.xzhang.boot.model.vo.question.QuestionSimpleVo;
 import cn.xzhang.boot.model.vo.question.QuestionVo;
+import cn.xzhang.boot.service.FavouriteService;
 import cn.xzhang.boot.service.QuestionService;
+import cn.xzhang.boot.service.ThumbService;
+import cn.xzhang.boot.service.UserService;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.apache.commons.lang3.StringUtils;
@@ -24,6 +27,7 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.sort.SortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.data.elasticsearch.core.SearchHit;
@@ -59,6 +63,14 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
 
     @Resource
     private ElasticsearchRestTemplate elasticsearchRestTemplate;
+
+    @Resource
+    @Lazy
+    private ThumbService thumbService;
+
+    @Resource
+    private FavouriteService favouriteService;
+
 
     /**
      * 添加新题目
@@ -131,6 +143,21 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         QuestionSimpleVo questionSimpleVo = new QuestionSimpleVo();
         BeanUtil.copyProperties(question, questionSimpleVo, "tags");
         questionSimpleVo.setTags(JSONUtil.toList(question.getTags(), String.class));
+
+        // 获取当前登录用户
+        long loginUserId = StpUtil.getLoginIdAsLong();
+        if(loginUserId==0L){
+            return questionSimpleVo;
+        }
+        // 查询当前用户是否点赞、收藏该题目
+        Favourite favourite = favouriteService.getFavouriteVOByUserIdAndQuestionId(loginUserId, question.getId());
+        if (ObjectUtil.isNotNull(favourite)) {
+            questionSimpleVo.setFavourStatus(true);
+        }
+        Thumb thumb = thumbService.getThumbVOByUserIdAndQuestionId(loginUserId, question.getId());
+        if (ObjectUtil.isNotNull(thumb)) {
+            questionSimpleVo.setThumbStatus(true);
+        }
         return questionSimpleVo;
     }
 
@@ -309,6 +336,20 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
             return;
         }
         questionBankQuestionMapper.myDeleteBatchIds(questionBankQuestions);
+    }
+
+    @Override
+    public void updateQuestionFavoriteCount(Long questionId, boolean type) {
+        if(type){
+            questionMapper.updateThumbCountAdd(questionId);
+        }else {
+            questionMapper.updateThumbCountReduce(questionId);
+        }
+    }
+
+    @Override
+    public void updateViewNum(Long id) {
+        questionMapper.updateViewNum(id);
     }
 
 

@@ -64,6 +64,22 @@ public interface QuestionMapper extends BaseMapperPlus<Question> {
     @Select("select * from question where updateTime >= #{minUpdateTime}")
     List<Question> listQuestionWithDelete(Date minUpdateTime);
 
+    @Select("update question set viewNum = viewNum + 1 where id = #{id}")
+    void updateViewNum(Long id);
+
+
+
+    @Select("update question set thumbNum = thumbNum + 1 where id = #{questionId}")
+    void updateThumbCountAdd(Long questionId);
+
+    @Select("update question set thumbNum = thumbNum - 1 where id = #{questionId}")
+    void updateThumbCountReduce(Long questionId);
+
+    @Select("update question set favourNum = favourNum + 1 where id = #{questionId}")
+    void updateFavoriteCountAdd(Long questionId);
+
+    @Select("update question set favourNum = favourNum - 1 where id = #{questionId}")
+    void updateFavoriteCountReduce(Long questionId);
 }
 
 

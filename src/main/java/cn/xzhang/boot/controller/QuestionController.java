@@ -138,6 +138,9 @@ public class QuestionController {
             return CommonResult.error(BAD_REQUEST_PARAMS);
         }
         Question question = questionService.getById(id);
+        // 将浏览量 +1
+        questionService.updateViewNum(question.getId());
+
         // 调用服务层方法，获取信息，并返回结果
         return success(questionService.getSimpleQuestionVO(question));
     }
