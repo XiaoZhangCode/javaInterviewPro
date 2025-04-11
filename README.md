@@ -84,7 +84,7 @@ PUT /question_v1
 
 	1. 安装ETCD
 
-    安装地址：https://github.com/etcd-io/etcd/releases
+安装地址：https://github.com/etcd-io/etcd/releases
 
 ![](.image/1.png)
 
@@ -92,7 +92,7 @@ PUT /question_v1
 
 	2. 下载HotKey 
 
-    官方地址：https://gitee.com/jd-platform-opensource/hotkey
+  官方地址：https://gitee.com/jd-platform-opensource/hotkey
 
     请注意本项目使用的是v0.0.4版本，JDK要小于17！！！
 
