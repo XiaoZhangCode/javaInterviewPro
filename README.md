@@ -86,7 +86,7 @@ PUT /question_v1
 
     安装地址：https://github.com/etcd-io/etcd/releases
 
-    ![](.image\1.png)
+![](.image/1.png)
 
     安装完成后，双击etcd.exe 服务默认占用2379 和2380端口（2379:提供HTTP API服务，和其他交互 2380:集群中节点间通讯）
 
