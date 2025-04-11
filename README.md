@@ -82,28 +82,28 @@ PUT /question_v1
 
 #### HotKey 配置
 
-	1. 安装ETCD
+1. 安装ETCD
 
 安装地址：https://github.com/etcd-io/etcd/releases
 
 ![](.image/1.png)
 
-    安装完成后，双击etcd.exe 服务默认占用2379 和2380端口（2379:提供HTTP API服务，和其他交互 2380:集群中节点间通讯）
+安装完成后，双击etcd.exe 服务默认占用2379 和2380端口（2379:提供HTTP API服务，和其他交互 2380:集群中节点间通讯）
 
-	2. 下载HotKey 
+2. 下载HotKey   
 
   官方地址：https://gitee.com/jd-platform-opensource/hotkey
 
-    请注意本项目使用的是v0.0.4版本，JDK要小于17！！！
+  请注意本项目使用的是v0.0.4版本，JDK要小于17！！！
 
-    将项目导入到IDEA后，启动worker 连接上ETCD 
+  将项目导入到IDEA后，启动worker 连接上ETCD 
 
-    启动Dashboard 控制台 
+  启动Dashboard 控制台 
 
-    	- 配置MYSQL连接 在resource目录下有建表语句 导入即可
-    	- 启动后访问http://127.0.0.1:端口号 账号默认admin 密码 123456
-    	- 初次使用需要创建APP 建议用户管理创建用户 所属APP和本项目名称一致即可 interView
-    	- 添加成功即可 使用maven 执行install命令 将worker打包到本地代码仓库 本项目中引用了worker的依赖
+      - 配置MYSQL连接 在resource目录下有建表语句 导入即可
+      - 启动后访问http://127.0.0.1:端口号 账号默认admin 密码 123456
+      - 初次使用需要创建APP 建议用户管理创建用户 所属APP和本项目名称一致即可 interView
+      - 添加成功即可 使用maven 执行install命令 将worker打包到本地代码仓库 本项目中引用了worker的依赖
 
 #### Mysql 配置
 
